@@ -37,12 +37,12 @@ class LocationAccessibilityControl(MacroElement):
         """
         {% macro header(this, kwargs) %}
         <style>
-          .locate-access-button {
+          .locate-access-button, .map-help-button {
             width: 34px; height: 34px; border: 0; background: #fff;
             cursor: pointer; font-size: 18px; line-height: 34px; text-align: center;
           }
-          .locate-access-button:hover { background: #f4f4f4; }
-          .location-results {
+          .locate-access-button:hover, .map-help-button:hover { background: #f4f4f4; }
+          .location-results, .map-help-panel {
             position: fixed; left: 12px; bottom: 32px; z-index: 10000;
             width: 310px; max-height: 45vh; overflow-y: auto;
             background: rgba(255,255,255,.97); border: 1px solid #888;
@@ -64,9 +64,27 @@ class LocationAccessibilityControl(MacroElement):
             font-weight: 700; text-decoration: none;
           }
           .location-results .directions-link:hover { text-decoration: underline; }
-          .location-results button {
+          .location-results button, .map-help-panel button {
             float: right; border: 0; background: transparent; cursor: pointer;
             font-size: 16px;
+          }
+          .map-help-panel h3 { margin: 0 0 8px; font-size: 15px; }
+          .map-help-panel ul { margin: 6px 0 8px; padding-left: 18px; }
+          .map-help-panel li { margin: 4px 0; }
+          @media (max-width: 600px) {
+            .map-title {
+              top: 8px !important; max-width: 58vw; white-space: normal !important;
+              text-align: center; font-size: 14px !important; padding: 6px 9px !important;
+            }
+            .location-results, .map-help-panel {
+              left: 8px; right: 8px; bottom: 8px; width: auto;
+              max-height: 44vh; box-sizing: border-box;
+            }
+            .map-legend { display: none; }
+            .leaflet-control-layers {
+              max-width: 48vw; max-height: 42vh; overflow-y: auto;
+              font-size: 11px;
+            }
           }
         </style>
         {% endmacro %}
@@ -79,6 +97,21 @@ class LocationAccessibilityControl(MacroElement):
             Your location is not stored by this site. Coordinates are sent to the
             public OSRM service to estimate routes. Results exclude live traffic
             and should be verified before travel.
+          </div>
+        </div>
+        <div id="map-help-panel" class="map-help-panel">
+          <button id="map-help-close" aria-label="Close help">×</button>
+          <h3>How to use this map</h3>
+          <ul>
+            <li><strong>⌖ Locate me:</strong> compare estimated driving access to a state park and a nearby recreation option.</li>
+            <li><strong>Blue route:</strong> selected Georgia state park.</li>
+            <li><strong>Purple route:</strong> selected local recreation option.</li>
+            <li><strong>Layer menu:</strong> switch accessibility methods, recreation suggestions, park points, and labels.</li>
+            <li><strong>Park points:</strong> click a marker for its name.</li>
+          </ul>
+          <div>
+            Times use public OSRM/OpenStreetMap routing without live traffic.
+            Local recreation data and destination entrances should be verified before travel.
           </div>
         </div>
         {% endmacro %}
@@ -255,6 +288,15 @@ class LocationAccessibilityControl(MacroElement):
                   {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000}
                 );
               });
+              const helpButton = L.DomUtil.create('button', 'map-help-button', container);
+              helpButton.type = 'button';
+              helpButton.title = 'How to use this map';
+              helpButton.setAttribute('aria-label', helpButton.title);
+              helpButton.innerHTML = '?';
+              L.DomEvent.on(helpButton, 'click', function() {
+                const panel = document.getElementById('map-help-panel');
+                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+              });
               return container;
             }
           });
@@ -262,6 +304,11 @@ class LocationAccessibilityControl(MacroElement):
           document.getElementById('location-results-close').addEventListener(
             'click', function() {
               document.getElementById('location-results').style.display = 'none';
+            }
+          );
+          document.getElementById('map-help-close').addEventListener(
+            'click', function() {
+              document.getElementById('map-help-panel').style.display = 'none';
             }
           );
         })();
@@ -508,17 +555,17 @@ def main() -> None:
     ).add_to(web_map)
 
     title = """
-    <div style="position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    <div class="map-title" style="position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
                 z-index: 9999; background: rgba(255,255,255,.94); padding: 8px 14px;
                 border: 1px solid #999; border-radius: 4px; font-family: sans-serif;
                 font-size: 18px; font-weight: 700; white-space: nowrap;">
-      Georgia State Park Accessibility
+      Georgia State and Local Park Accessibility by County
     </div>
     """
     web_map.get_root().html.add_child(folium.Element(title))
 
     legend = """
-    <div style="position: fixed; right: 10px; bottom: 28px; z-index: 9999;
+    <div class="map-legend" style="position: fixed; right: 10px; bottom: 28px; z-index: 9999;
                 background: rgba(255,255,255,.95); padding: 10px 12px;
                 border: 1px solid #999; border-radius: 4px; font: 12px sans-serif;
                 line-height: 1.45;">
@@ -541,7 +588,7 @@ def main() -> None:
     </div>
     """
     web_map.get_root().html.add_child(folium.Element(legend))
-    folium.LayerControl(collapsed=False).add_to(web_map)
+    folium.LayerControl(collapsed=True).add_to(web_map)
     web_map.save(MAPS / "interactive_accessibility_map.html")
     shutil.copyfile(MAPS / "interactive_accessibility_map.html", DOCS / "index.html")
     print(f"Saved {MAPS / 'interactive_accessibility_map.html'}")

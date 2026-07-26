@@ -1,12 +1,12 @@
-# Georgia State Park Accessibility
+# Georgia State and Local Park Accessibility by County
 
 This project evaluates geographic access to Georgia State Parks by measuring the straight-line distance from each county's geometric centroid to the representative point of its nearest state park. County population estimates are added to show how many residents live in each access category.
 
-![Georgia State Park Accessibility by County](maps/accessibility_map.png)
+![Georgia State and Local Park Accessibility by County](maps/accessibility_map.png)
 
 ## Interactive map
 
-[Open the interactive Georgia State Park Accessibility map](https://casondow.github.io/georgia-state-park-accessibility/)
+[Open the interactive Georgia State and Local Park Accessibility map](https://casondow.github.io/georgia-state-park-accessibility/)
 
 Use the layer control to switch between straight-line accessibility and estimated drive-time accessibility. Hover over a county for its population, nearest park, distance or travel-time estimate, and category. Zoom in, then turn on **State park labels** to display all 47 park names without overwhelming the statewide view.
 
@@ -17,6 +17,8 @@ The static maps label the state parks associated with the ten highest-burden cou
 Click the **⌖ Locate me** button beneath the zoom controls to estimate access from the visitor's current location. The map compares the fastest estimated drive to a Georgia state park with the fastest estimated drive to a nearby named OSM recreation option, displays both route distances and travel times, and draws the routes in blue and purple. Browser location permission is required. Coordinates are not stored by this site; they are sent to the public OSRM service solely to calculate the requested routes.
 
 Each result also includes an **Open driving directions** link that opens the selected destination in Google Maps. Visitors should verify the destination entrance, operating status, and route before traveling.
+
+Select the **? Help** control for a concise explanation of the map controls, route colors, layer menu, and routing limitations. On phone-sized screens, the results and help panels expand across the available width while the large legend is hidden to preserve map space; the same categories remain available through the layer menu and county popups.
 
 ## Key findings
 
