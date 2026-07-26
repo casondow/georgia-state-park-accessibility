@@ -38,6 +38,12 @@ An additional OSRM analysis estimates the fastest driving route from each county
 
 These are screening estimates, not observed travel times. They do not use verified park entrances, household origins, live traffic, or turn-by-turn validation.
 
+![Estimated drive time to Georgia State Parks](maps/drive_time_accessibility_map.png)
+
+The fastest park by road is not always the park with the shortest straight-line distance. The comparison below shows how road-network structure changes the accessibility picture; bubble size represents county population.
+
+![Straight-line distance versus estimated drive time](maps/distance_vs_drive_time.png)
+
 ## Research question
 
 How does straight-line proximity to Georgia State Parks vary among Georgia counties, and how many residents live in counties with lower proximity-based access?
@@ -97,6 +103,7 @@ python -m ipykernel install --user --name ga-state-park-access --display-name "P
 python scripts/reproduce_analysis.py
 python scripts/drive_time_analysis.py
 python scripts/build_interactive_map.py
+python scripts/build_drive_time_maps.py
 ```
 
 In Jupyter, select the **Python (GA State Park Access)** kernel. On the original computer, the previously working environment is:
@@ -120,6 +127,8 @@ The base Miniconda environment does not currently include GeoPandas.
 - `maps/priority_areas_map.png` — Low and Very Low access counties.
 - `maps/population_by_access_category.png` — population summary chart.
 - `maps/interactive_accessibility_map.html` — standalone interactive map.
+- `maps/drive_time_accessibility_map.png` — estimated drive-time choropleth.
+- `maps/distance_vs_drive_time.png` — straight-line distance versus estimated travel time.
 - `docs/index.html` — GitHub Pages copy of the interactive map.
 - `notebooks/state_park_accessibility_analysis_backup.ipynb` — preserved exploratory notebook.
 - `scripts/reproduce_analysis.py` — clean reproducible workflow and validation checks.
