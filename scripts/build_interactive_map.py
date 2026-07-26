@@ -2,11 +2,13 @@
 
 from pathlib import Path
 import shutil
+import json
 
 import folium
 import geopandas as gpd
 import pandas as pd
 from branca.colormap import LinearColormap
+from branca.element import MacroElement, Template
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +28,235 @@ DRIVE_COLORS = {
     "Low": "#FDAE61",
     "Very Low": "#B2182B",
 }
+
+
+class LocationAccessibilityControl(MacroElement):
+    """Leaflet control for on-demand browser geolocation and OSRM routing."""
+
+    _template = Template(
+        """
+        {% macro header(this, kwargs) %}
+        <style>
+          .locate-access-button {
+            width: 34px; height: 34px; border: 0; background: #fff;
+            cursor: pointer; font-size: 18px; line-height: 34px; text-align: center;
+          }
+          .locate-access-button:hover { background: #f4f4f4; }
+          .location-results {
+            position: fixed; left: 12px; bottom: 32px; z-index: 10000;
+            width: 310px; max-height: 45vh; overflow-y: auto;
+            background: rgba(255,255,255,.97); border: 1px solid #888;
+            border-radius: 5px; padding: 11px 12px; font: 12px/1.4 sans-serif;
+            box-shadow: 0 1px 6px rgba(0,0,0,.25); display: none;
+          }
+          .location-results h3 { margin: 0 0 7px; font-size: 15px; }
+          .location-results .route-card {
+            margin: 7px 0; padding: 7px; border-left: 5px solid #555;
+            background: #f7f7f7;
+          }
+          .location-results .state-route { border-left-color: #0057B8; }
+          .location-results .local-route { border-left-color: #8E24AA; }
+          .location-results .privacy-note {
+            color: #555; font-size: 10px; margin-top: 7px;
+          }
+          .location-results button {
+            float: right; border: 0; background: transparent; cursor: pointer;
+            font-size: 16px;
+          }
+        </style>
+        {% endmacro %}
+        {% macro html(this, kwargs) %}
+        <div id="location-results" class="location-results">
+          <button id="location-results-close" aria-label="Close">×</button>
+          <h3>Access from your location</h3>
+          <div id="location-results-body">Finding your location…</div>
+          <div class="privacy-note">
+            Your location is not stored by this site. Coordinates are sent to the
+            public OSRM service to estimate routes. Results exclude live traffic
+            and should be verified before travel.
+          </div>
+        </div>
+        {% endmacro %}
+        {% macro script(this, kwargs) %}
+        (function() {
+          const map = {{ this._parent.get_name() }};
+          const stateParks = {{ this.state_parks_json }};
+          const localOptions = {{ this.local_options_json }};
+          let userMarker = null;
+          let routeLayers = [];
+
+          function miles(metres) { return metres / 1609.344; }
+          function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, function(char) {
+              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char];
+            });
+          }
+          function haversine(lat1, lon1, lat2, lon2) {
+            const radius = 6371;
+            const toRad = Math.PI / 180;
+            const dLat = (lat2-lat1) * toRad;
+            const dLon = (lon2-lon1) * toRad;
+            const a = Math.sin(dLat/2)**2 +
+              Math.cos(lat1*toRad) * Math.cos(lat2*toRad) *
+              Math.sin(dLon/2)**2;
+            return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          }
+          function closestCandidates(items, latitude, longitude, count) {
+            return items.map(function(item) {
+              return Object.assign({}, item, {
+                air_km: haversine(latitude, longitude, item.lat, item.lon)
+              });
+            }).sort(function(a,b) { return a.air_km - b.air_km; }).slice(0, count);
+          }
+          async function fastestOption(latitude, longitude, items) {
+            const coordinates = [[longitude, latitude]].concat(
+              items.map(function(item) { return [item.lon, item.lat]; })
+            );
+            const coordinateText = coordinates.map(function(point) {
+              return point[0].toFixed(6) + ',' + point[1].toFixed(6);
+            }).join(';');
+            const destinations = items.map(function(_, index) {
+              return index + 1;
+            }).join(';');
+            const url = 'https://router.project-osrm.org/table/v1/driving/' +
+              coordinateText + '?sources=0&destinations=' + destinations +
+              '&annotations=duration,distance';
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Routing request failed.');
+            const payload = await response.json();
+            if (payload.code !== 'Ok') throw new Error('No route matrix returned.');
+            let bestIndex = -1;
+            let bestDuration = Infinity;
+            payload.durations[0].forEach(function(duration, index) {
+              if (duration !== null && duration < bestDuration) {
+                bestDuration = duration;
+                bestIndex = index;
+              }
+            });
+            if (bestIndex < 0) throw new Error('No drivable option was found.');
+            return {
+              item: items[bestIndex],
+              duration: payload.durations[0][bestIndex],
+              distance: payload.distances[0][bestIndex]
+            };
+          }
+          async function drawRoute(latitude, longitude, result, color) {
+            const url = 'https://router.project-osrm.org/route/v1/driving/' +
+              longitude.toFixed(6) + ',' + latitude.toFixed(6) + ';' +
+              result.item.lon.toFixed(6) + ',' + result.item.lat.toFixed(6) +
+              '?overview=full&geometries=geojson';
+            const response = await fetch(url);
+            if (!response.ok) return null;
+            const payload = await response.json();
+            if (payload.code !== 'Ok' || !payload.routes.length) return null;
+            const layer = L.geoJSON(payload.routes[0].geometry, {
+              style: {color: color, weight: 5, opacity: .8}
+            }).addTo(map);
+            routeLayers.push(layer);
+            return layer;
+          }
+          async function calculate(latitude, longitude) {
+            const panel = document.getElementById('location-results');
+            const body = document.getElementById('location-results-body');
+            panel.style.display = 'block';
+            body.innerHTML = 'Calculating estimated drive access…';
+            routeLayers.forEach(function(layer) { map.removeLayer(layer); });
+            routeLayers = [];
+            if (userMarker) map.removeLayer(userMarker);
+            userMarker = L.circleMarker([latitude, longitude], {
+              radius: 7, color: '#111', weight: 2, fillColor: '#FFEB3B',
+              fillOpacity: 1
+            }).bindTooltip('Your location').addTo(map);
+
+            try {
+              const stateCandidates = closestCandidates(
+                stateParks, latitude, longitude, 25
+              );
+              const localCandidates = closestCandidates(
+                localOptions, latitude, longitude, 25
+              );
+              const results = await Promise.all([
+                fastestOption(latitude, longitude, stateCandidates),
+                fastestOption(latitude, longitude, localCandidates)
+              ]);
+              const stateResult = results[0];
+              const localResult = results[1];
+              const routes = await Promise.all([
+                drawRoute(latitude, longitude, stateResult, '#0057B8'),
+                drawRoute(latitude, longitude, localResult, '#8E24AA')
+              ]);
+              body.innerHTML =
+                '<div class="route-card state-route"><strong>Nearest state park by estimated drive time</strong><br>' +
+                escapeHtml(stateResult.item.name) + '<br>' +
+                (stateResult.duration/60).toFixed(1) + ' minutes · ' +
+                miles(stateResult.distance).toFixed(1) + ' miles</div>' +
+                '<div class="route-card local-route"><strong>Nearby recreation option by estimated drive time</strong><br>' +
+                escapeHtml(localResult.item.name) + ' (' +
+                escapeHtml(localResult.item.type.replaceAll('_',' ')) + ')<br>' +
+                (localResult.duration/60).toFixed(1) + ' minutes · ' +
+                miles(localResult.distance).toFixed(1) + ' miles</div>' +
+                '<div><strong>Route colors:</strong> blue = state park; purple = nearby recreation.</div>';
+              const bounds = L.latLngBounds([[latitude, longitude]]);
+              routes.forEach(function(layer) {
+                if (layer) bounds.extend(layer.getBounds());
+              });
+              map.fitBounds(bounds.pad(.12));
+            } catch (error) {
+              body.innerHTML = '<strong>Unable to calculate routes.</strong><br>' +
+                escapeHtml(error.message) + ' Please try again shortly.';
+            }
+          }
+
+          const LocateControl = L.Control.extend({
+            options: {position: 'topleft'},
+            onAdd: function() {
+              const container = L.DomUtil.create('div', 'leaflet-bar');
+              const button = L.DomUtil.create('button', 'locate-access-button', container);
+              button.type = 'button';
+              button.title = 'Locate me and estimate park drive access';
+              button.setAttribute('aria-label', button.title);
+              button.innerHTML = '⌖';
+              L.DomEvent.disableClickPropagation(container);
+              L.DomEvent.on(button, 'click', function() {
+                const panel = document.getElementById('location-results');
+                const body = document.getElementById('location-results-body');
+                panel.style.display = 'block';
+                body.innerHTML = 'Requesting your location…';
+                if (!navigator.geolocation) {
+                  body.innerHTML = 'Geolocation is not supported by this browser.';
+                  return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                  function(position) {
+                    calculate(position.coords.latitude, position.coords.longitude);
+                  },
+                  function(error) {
+                    body.innerHTML = '<strong>Location unavailable.</strong><br>' +
+                      escapeHtml(error.message) +
+                      '<br>Check the browser location permission and try again.';
+                  },
+                  {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000}
+                );
+              });
+              return container;
+            }
+          });
+          map.addControl(new LocateControl());
+          document.getElementById('location-results-close').addEventListener(
+            'click', function() {
+              document.getElementById('location-results').style.display = 'none';
+            }
+          );
+        })();
+        {% endmacro %}
+        """
+    )
+
+    def __init__(self, state_parks: list[dict], local_options: list[dict]) -> None:
+        super().__init__()
+        self._name = "LocationAccessibilityControl"
+        self.state_parks_json = json.dumps(state_parks, ensure_ascii=False)
+        self.local_options_json = json.dumps(local_options, ensure_ascii=False)
 
 
 def category_style(feature: dict, field: str, colors: dict[str, str]) -> dict:
@@ -50,6 +281,10 @@ def main() -> None:
     straight = straight.to_crs("EPSG:4326")
     parks = gpd.read_file(
         PROCESSED / "park_points.gpkg", layer="park_points"
+    ).to_crs("EPSG:4326")
+    all_local_options = gpd.read_file(
+        PROCESSED / "local_recreation_options.gpkg",
+        layer="named_recreation_options",
     ).to_crs("EPSG:4326")
 
     drive_path = PROCESSED / "drive_time_accessibility.gpkg"
@@ -231,6 +466,29 @@ def main() -> None:
             tooltip=park["park_name"],
         ).add_to(park_labels_layer)
     park_labels_layer.add_to(web_map)
+
+    state_park_locations = [
+        {
+            "name": row["park_name"],
+            "lat": row.geometry.y,
+            "lon": row.geometry.x,
+            "type": "state park",
+        }
+        for _, row in parks.iterrows()
+    ]
+    local_option_locations = [
+        {
+            "name": row["name"],
+            "lat": row.geometry.y,
+            "lon": row.geometry.x,
+            "type": row["fclass"],
+        }
+        for _, row in all_local_options.iterrows()
+    ]
+    LocationAccessibilityControl(
+        state_park_locations,
+        local_option_locations,
+    ).add_to(web_map)
 
     title = """
     <div style="position: fixed; top: 12px; left: 50%; transform: translateX(-50%);

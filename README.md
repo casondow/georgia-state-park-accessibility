@@ -14,6 +14,8 @@ For counties classified as Low or Very Low drive-time access, the county tooltip
 
 The static maps label the state parks associated with the ten highest-burden counties. This selective labeling avoids obscuring county symbology while identifying the destinations most relevant to the findings.
 
+Click the **⌖ Locate me** button beneath the zoom controls to estimate access from the visitor's current location. The map compares the fastest estimated drive to a Georgia state park with the fastest estimated drive to a nearby named OSM recreation option, displays both route distances and travel times, and draws the routes in blue and purple. Browser location permission is required. Coordinates are not stored by this site; they are sent to the public OSRM service solely to calculate the requested routes.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.
@@ -130,6 +132,7 @@ The base Miniconda environment does not currently include GeoPandas.
 - `data/processed/top10_drive_time_counties.csv` — longest estimated county-centroid drive times.
 - `data/processed/local_park_suggestions.csv` — up to three named OSM recreation suggestions for Low/Very Low counties.
 - `data/processed/local_park_suggestions.gpkg` — mapped suggested recreation points.
+- `data/processed/local_recreation_options.gpkg` — named OSM park and recreation-ground candidates used by Locate me.
 - `maps/accessibility_map.png` — statewide accessibility map.
 - `maps/priority_areas_map.png` — Low and Very Low access counties.
 - `maps/population_by_access_category.png` — population summary chart.
@@ -157,6 +160,7 @@ The maps describe proximity from a single representative point per county to a s
 - Estimated drive times use OSRM/OpenStreetMap routing from county centroids to park centroids. They do not represent live traffic or verified public entrances.
 - The public OSRM demo endpoint is used for a small reproducible screening analysis and is not a production service-level dependency.
 - Nearby recreation suggestions are extracted from named OpenStreetMap `park` and `recreation_ground` features. Their ownership, accessibility, completeness, and current operating status are not independently verified.
+- Locate me evaluates the 25 geographically closest state-park candidates and 25 geographically closest named recreation candidates, then compares their OSRM travel times. It is a practical screening tool, not a guarantee that every possible destination was exhaustively routed.
 
 ## Future work
 

@@ -92,6 +92,11 @@ def main() -> None:
     priority["county_centroid"] = priority.geometry.centroid
 
     options = load_options()
+    options[["option_id", "name", "fclass", "geometry"]].to_file(
+        PROCESSED / "local_recreation_options.gpkg",
+        layer="named_recreation_options",
+        driver="GPKG",
+    )
     within = gpd.sjoin(
         options,
         priority[["county", "geometry"]],
