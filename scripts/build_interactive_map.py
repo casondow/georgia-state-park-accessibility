@@ -213,6 +213,25 @@ def main() -> None:
         ).add_to(parks_layer)
     parks_layer.add_to(web_map)
 
+    park_labels_layer = folium.FeatureGroup(name="State park labels", show=False)
+    for _, park in parks.iterrows():
+        folium.Marker(
+            location=[park.geometry.y, park.geometry.x],
+            icon=folium.DivIcon(
+                icon_size=(180, 24),
+                icon_anchor=(-6, 11),
+                html=(
+                    '<div class="park-name-label" style="font: 10px/1.15 sans-serif; font-weight: 700; '
+                    'color:#111; white-space:nowrap; text-shadow:'
+                    '-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,'
+                    '1px 1px 0 #fff;">'
+                    f"{park['park_name']}</div>"
+                ),
+            ),
+            tooltip=park["park_name"],
+        ).add_to(park_labels_layer)
+    park_labels_layer.add_to(web_map)
+
     title = """
     <div style="position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
                 z-index: 9999; background: rgba(255,255,255,.94); padding: 8px 14px;
@@ -242,6 +261,7 @@ def main() -> None:
       <div style="margin-top:6px; max-width:220px; color:#555;">
         Screening estimates from county centroids to park representative points.
         Purple markers are unverified OpenStreetMap recreation suggestions.
+        Turn on state park labels after zooming in for the clearest view.
       </div>
     </div>
     """

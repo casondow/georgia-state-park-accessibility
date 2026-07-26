@@ -8,9 +8,11 @@ This project evaluates geographic access to Georgia State Parks by measuring the
 
 [Open the interactive Georgia State Park Accessibility map](https://casondow.github.io/georgia-state-park-accessibility/)
 
-Use the layer control to switch between straight-line accessibility and estimated drive-time accessibility. Hover over a county for its population, nearest park, distance or travel-time estimate, and category.
+Use the layer control to switch between straight-line accessibility and estimated drive-time accessibility. Hover over a county for its population, nearest park, distance or travel-time estimate, and category. Zoom in, then turn on **State park labels** to display all 47 park names without overwhelming the statewide view.
 
 For counties classified as Low or Very Low drive-time access, the county tooltip also lists up to three nearby named OpenStreetMap recreation options. Turn on **Suggested nearby recreation options** to display them as purple markers. These features are informational suggestions only; confirm ownership, public access, entrances, hours, and amenities before visiting.
+
+The static maps label the state parks associated with the ten highest-burden counties. This selective labeling avoids obscuring county symbology while identifying the destinations most relevant to the findings.
 
 ## Key findings
 

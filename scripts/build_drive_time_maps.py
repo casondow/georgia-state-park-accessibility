@@ -77,6 +77,20 @@ def main() -> None:
         label.set_path_effects(
             [path_effects.withStroke(linewidth=2, foreground="#FFFFFF")]
         )
+    relevant_parks = set(label_counties["nearest_drive_park"])
+    for _, park in parks.loc[parks["park_name"].isin(relevant_parks)].iterrows():
+        label = ax.annotate(
+            park["park_name"].replace(" SP", ""),
+            (park.geometry.x, park.geometry.y),
+            xytext=(5, 3),
+            textcoords="offset points",
+            fontsize=5.5,
+            color="#111111",
+            zorder=4,
+        )
+        label.set_path_effects(
+            [path_effects.withStroke(linewidth=2, foreground="#FFFFFF")]
+        )
     handles = [
         Patch(facecolor=DRIVE_COLORS[item], edgecolor="none", label=item)
         for item in CATEGORY_ORDER
