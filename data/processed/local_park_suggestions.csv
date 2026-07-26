@@ -1,0 +1,178 @@
+county,rank,option_id,local_option,option_type,centroid_distance_miles,selection_basis
+Effingham,1,1710,Effingham Rec Department,park,0.6,Named OSM recreation option within county
+Effingham,2,1685,Veterans Park,park,1.3,Named OSM recreation option within county
+Effingham,3,1709,Springfield City Park,park,1.7,Named OSM recreation option within county
+Schley,1,1527,McMickle Park,park,1.6,Named OSM recreation option within county
+Brooks,1,3105,Wood Valley Community Center,recreation_ground,15.3,Nearest named OSM recreation option
+Brooks,2,1664,Grove Point Park,park,15.5,Nearest named OSM recreation option
+Brooks,3,2098,Langdale Park,park,15.6,Nearest named OSM recreation option
+Richmond,1,2068,Diamond Lakes Regional Park,park,1.1,Named OSM recreation option within county
+Richmond,2,2585,Hephzibah-Carroll Community Center,park,3.8,Named OSM recreation option within county
+Richmond,3,2354,Butler Creek Park,park,4.3,Named OSM recreation option within county
+Putnam,1,2476,Jimmy Davis Recreation Park,park,0.3,Named OSM recreation option within county
+Putnam,2,1428,Deloach Park,park,0.7,Named OSM recreation option within county
+Putnam,3,215,Eatonton Historic District,park,1.0,Named OSM recreation option within county
+Fayette,1,2082,Patriot Park,park,1.4,Named OSM recreation option within county
+Fayette,2,741,Kiwanis Park,park,1.6,Named OSM recreation option within county
+Fayette,3,628,The Ridge Nature Preserve,park,1.6,Named OSM recreation option within county
+Hancock,1,2322,Veterans Memorial Park,park,1.5,Named OSM recreation option within county
+Hancock,2,228,Little Hudson Park,park,9.2,Named OSM recreation option within county
+Hancock,3,227,Linton Historic District,park,10.7,Named OSM recreation option within county
+Glascock,1,2360,Brassell Park,park,0.8,Named OSM recreation option within county
+Glascock,2,2474,Mitchell City Park,park,5.4,Named OSM recreation option within county
+Wilcox,1,2192,Crummey Park,park,2.0,Named OSM recreation option within county
+Wilcox,2,2193,Patriot Park,park,2.2,Named OSM recreation option within county
+Wilcox,3,2766,Halfmoon Landing,park,8.1,Named OSM recreation option within county
+Pike,1,3123,Chandler Waterfront,recreation_ground,10.9,Nearest named OSM recreation option
+Pike,2,1445,Airport Road Park,park,11.2,Nearest named OSM recreation option
+Pike,3,1885,WWII Memorial Park,park,11.8,Nearest named OSM recreation option
+Decatur,1,181,Washington Street Park,park,0.8,Named OSM recreation option within county
+Decatur,2,2155,Bill Reynolds Sports Park,park,1.4,Named OSM recreation option within county
+Decatur,3,178,Bainbridge Residential Historic District,park,1.8,Named OSM recreation option within county
+Bleckley,1,1502,Bleckley County Memorial Park,park,2.0,Named OSM recreation option within county
+Bleckley,2,2859,Cochran-Bleckley Recreation Department,recreation_ground,4.4,Named OSM recreation option within county
+Bleckley,3,2763,James Dykes Memorial Park,park,9.1,Named OSM recreation option within county
+Marion,1,175,Fort Perry Monument,park,8.5,Named OSM recreation option within county
+Treutlen,1,1888,Jean Gillis Memorial Park,park,2.4,Named OSM recreation option within county
+Treutlen,2,1889,Soperton Recreation Dept.,park,3.6,Named OSM recreation option within county
+Calhoun,1,4,Andrew Jackson Monument,park,15.0,Nearest named OSM recreation option
+Calhoun,2,2226,Randolph County Veterans Memorial Park,park,15.8,Nearest named OSM recreation option
+Calhoun,3,1564,Clover Field,park,17.6,Nearest named OSM recreation option
+Jeff Davis,1,1779,Weatherly Park,park,4.1,Named OSM recreation option within county
+Jeff Davis,2,1780,Buddy Spann Park,park,5.4,Named OSM recreation option within county
+Jeff Davis,3,2777,Hinson Landing,park,9.3,Named OSM recreation option within county
+Glynn,1,2382,Altama Park,park,1.4,Named OSM recreation option within county
+Glynn,2,2374,Paula Park,park,2.3,Named OSM recreation option within county
+Glynn,3,334,Madge Merritt Park,park,2.3,Named OSM recreation option within county
+Banks,1,2230,Veteran's Memorial Park,park,1.4,Named OSM recreation option within county
+Banks,2,2177,Banks County Public Park,park,3.0,Named OSM recreation option within county
+Banks,3,1829,Maysville Park,park,7.3,Named OSM recreation option within county
+Wayne,1,1362,Bill Morris Park,park,3.1,Named OSM recreation option within county
+Wayne,2,1412,Wayne Memorial Park,park,3.7,Named OSM recreation option within county
+Wayne,3,1361,Cracker Williams Recreation Park,park,3.9,Named OSM recreation option within county
+Baldwin,1,1448,Central City Park,park,0.9,Named OSM recreation option within county
+Baldwin,2,2863,Boys & Girls Club,recreation_ground,1.0,Named OSM recreation option within county
+Baldwin,3,1461,Oconee River Greenway,park,2.1,Named OSM recreation option within county
+Haralson,1,2704,Depot Park,park,1.5,Named OSM recreation option within county
+Haralson,2,2022,Legion Park,park,5.0,Named OSM recreation option within county
+Haralson,3,62,Tally Valley Park,park,5.1,Named OSM recreation option within county
+Irwin,1,1408,Ocilla Ball Park,park,1.8,Named OSM recreation option within county
+Irwin,2,1487,Cumbee Park,park,1.8,Named OSM recreation option within county
+Irwin,3,1415,Irwin County Recreational Park,park,2.9,Named OSM recreation option within county
+Pulaski,1,1853,Mile Branch Park,park,2.8,Named OSM recreation option within county
+Pulaski,2,221,Pulaski County Fairgrounds,park,2.8,Named OSM recreation option within county
+Pulaski,3,2764,Veterans Memorial Riverfront Park,park,3.6,Named OSM recreation option within county
+Ware,1,78,Waycross State Forest,park,9.6,Named OSM recreation option within county
+Ware,2,310,Waycross Historic District,park,11.3,Named OSM recreation option within county
+Ware,3,2297,Plant Park,park,11.4,Named OSM recreation option within county
+Ben Hill,1,2309,American Legion Park,park,3.3,Named OSM recreation option within county
+Ben Hill,2,2310,Blue and Gray Park,park,3.9,Named OSM recreation option within county
+Ben Hill,3,1413,Fitzgerald Ball Park,park,4.7,Named OSM recreation option within county
+Lanier,1,578,Banks Lake National Refuge,park,1.9,Named OSM recreation option within county
+Taylor,1,1913,Taylor County Recreation Complex,park,0.6,Named OSM recreation option within county
+Taylor,2,1914,Col. Richard P. Turk memorial Park,park,0.9,Named OSM recreation option within county
+Taylor,3,1221,Liberty Street Ball Park,park,9.3,Named OSM recreation option within county
+Houston,1,1968,Rozar Park,park,2.3,Named OSM recreation option within county
+Houston,2,1436,Barbara Calhoun Park,park,2.6,Named OSM recreation option within county
+Houston,3,1435,Frank Satterfield Ballpark,park,2.9,Named OSM recreation option within county
+Chattahoochee,1,2370,Patton Recreation Area,park,9.1,Named OSM recreation option within county
+Chattahoochee,2,2430,Green Field,park,9.5,Named OSM recreation option within county
+Chattahoochee,3,2432,Sacrifice Field,park,9.7,Named OSM recreation option within county
+Bryan,1,2575,Blueberry Park,park,7.8,Named OSM recreation option within county
+Bryan,2,1757,J F Gregory City Park,park,9.4,Named OSM recreation option within county
+Bryan,3,1866,Richmond Heights Park,park,9.6,Named OSM recreation option within county
+Twiggs,1,2438,Twiggs County Recreational Park,park,7.0,Named OSM recreation option within county
+Twiggs,2,2762,Bullard Landing,park,7.3,Named OSM recreation option within county
+Twiggs,3,2437,Hammock Road Park,park,10.3,Named OSM recreation option within county
+Fannin,1,1466,Blue Ridge City Park,park,0.2,Named OSM recreation option within county
+Fannin,2,1464,Willa Mae Haight Park,park,0.3,Named OSM recreation option within county
+Fannin,3,1465,Downtown Blue Ridge Park,park,0.4,Named OSM recreation option within county
+Grady,1,1218,Holder Park,park,1.1,Named OSM recreation option within county
+Grady,2,2291,Azalea Park,park,1.4,Named OSM recreation option within county
+Grady,3,149,Southern Terrace Park,park,1.7,Named OSM recreation option within county
+Wilkes,1,2289,Fort Washington Park,park,3.0,Named OSM recreation option within county
+Wilkes,2,2287,Reese Booker Park,park,3.3,Named OSM recreation option within county
+Wilkes,3,2288,School Street Park,park,3.7,Named OSM recreation option within county
+Clinch,1,267,Homerville and Clinch County Recreation Park,park,9.6,Named OSM recreation option within county
+Lowndes,1,2602,Fellowship Park,park,0.3,Named OSM recreation option within county
+Lowndes,2,2601,Smith Park,park,0.3,Named OSM recreation option within county
+Lowndes,3,2600,Unity Park,park,0.5,Named OSM recreation option within county
+Bulloch,1,1960,Edgewood Acres Park,park,2.5,Named OSM recreation option within county
+Bulloch,2,1844,Georgia Southern Botanical Gardens,park,2.5,Named OSM recreation option within county
+Bulloch,3,1647,Riley Park,park,2.8,Named OSM recreation option within county
+Charlton,1,311,Suwannee Canal Recreation Area,park,2.9,Named OSM recreation option within county
+Charlton,2,81,Okefenokee National Wildlife Refuge,park,3.2,Named OSM recreation option within county
+Charlton,3,2871,Traders Hill Campground,recreation_ground,6.6,Named OSM recreation option within county
+Polk,1,2921,Cedartown Recreation,recreation_ground,5.0,Named OSM recreation option within county
+Polk,2,51,Optimist Field,park,6.6,Named OSM recreation option within county
+Polk,3,1890,Nathan Dean Park,park,7.4,Named OSM recreation option within county
+Crawford,1,162,Benjamin Hawkins Monument,park,1.5,Named OSM recreation option within county
+Crawford,2,163,Roberta Historic District,park,1.5,Named OSM recreation option within county
+Crawford,3,1493,JC's Vineyards,park,8.3,Named OSM recreation option within county
+Gordon,1,1324,BB&T Park,park,4.3,Named OSM recreation option within county
+Gordon,2,2955,Clarence E. Harris River Park Soccer Complex,recreation_ground,4.5,Named OSM recreation option within county
+Gordon,3,3203,Calhoun Park,recreation_ground,5.0,Named OSM recreation option within county
+Camden,1,1082,City of Kingsland Water Department,park,5.3,Named OSM recreation option within county
+Camden,2,2383,Satilla River Waterfront Park,park,6.2,Named OSM recreation option within county
+Camden,3,1728,Camden Recreational Center,park,7.6,Named OSM recreation option within county
+Peach,1,1910,Everett Square Park,park,4.0,Named OSM recreation option within county
+Peach,2,631,Quadrangle,park,4.5,Named OSM recreation option within county
+Peach,3,2312,South Peach Park,park,4.7,Named OSM recreation option within county
+Jefferson,1,2275,Helen Clark Memorial Park,park,3.4,Named OSM recreation option within county
+Dougherty,1,325,Exchange Club Fairgrounds,park,1.3,Named OSM recreation option within county
+Dougherty,2,1298,Evergreen Park,park,1.6,Named OSM recreation option within county
+Dougherty,3,1942,Gordon Sports Complex,park,2.0,Named OSM recreation option within county
+Catoosa,1,2820,Poplar Springs Park,park,1.2,Named OSM recreation option within county
+Catoosa,2,1489,Little General Children's Park,park,1.5,Named OSM recreation option within county
+Catoosa,3,1882,Chief Richard Taylor Nature Trail,park,1.5,Named OSM recreation option within county
+Terrell,1,182,Griggs Memorial,park,0.6,Named OSM recreation option within county
+Terrell,2,4,Andrew Jackson Monument,park,6.0,Named OSM recreation option within county
+Terrell,3,184,Sasser Commercial Historic District,park,6.6,Named OSM recreation option within county
+Sumter,1,3198,Intramural Field,recreation_ground,1.4,Named OSM recreation option within county
+Sumter,2,682,Centennial Plaza,park,1.6,Named OSM recreation option within county
+Sumter,3,1268,Reese Park,park,2.4,Named OSM recreation option within county
+Echols,1,202,Grand Bay Public Hunting Area,park,22.0,Nearest named OSM recreation option
+Echols,2,714,Scott Park,park,22.9,Nearest named OSM recreation option
+Echols,3,1657,Madison Heights Drive Park,park,23.1,Nearest named OSM recreation option
+Upson,1,68,Weaver Park,park,1.2,Named OSM recreation option within county
+Upson,2,1821,Westside Park,park,2.0,Named OSM recreation option within county
+Upson,3,1836,Greatest Generation Memorial Park,park,2.5,Named OSM recreation option within county
+Long,1,1137,Long County Recreation Park,park,2.2,Named OSM recreation option within county
+Long,2,2200,Macedonia Park,park,7.7,Named OSM recreation option within county
+Appling,1,2299,Water Works Park,park,4.2,Named OSM recreation option within county
+Berrien,1,198,Northside Park,park,4.1,Named OSM recreation option within county
+Berrien,2,2014,Bee Tree Recreation Area,park,4.6,Named OSM recreation option within county
+Berrien,3,1761,The Square,park,4.9,Named OSM recreation option within county
+Macon,1,2127,Whitewater Creek Park,park,1.6,Named OSM recreation option within county
+Macon,2,2640,Gladys Hair park,park,4.1,Named OSM recreation option within county
+Macon,3,2639,Charlie Jackson Unity Park,park,4.1,Named OSM recreation option within county
+Worth,1,1528,Jeffords Park,park,1.7,Named OSM recreation option within county
+Worth,2,166,Sylvester Commercial Historic District,park,1.9,Named OSM recreation option within county
+Worth,3,632,Poulan Community House Park,park,4.5,Named OSM recreation option within county
+Bibb,1,1094,Bloomfield Park,park,1.5,Named OSM recreation option within county
+Bibb,2,1090,Village Green Park,park,1.8,Named OSM recreation option within county
+Bibb,3,1112,Meadowbrook Drive Park,park,1.9,Named OSM recreation option within county
+Laurens,1,1478,Southern Pines Regional Park,park,1.9,Named OSM recreation option within county
+Laurens,2,205,Oconee Riverview Park,park,4.7,Named OSM recreation option within county
+Laurens,3,1819,Fairview Park,park,4.9,Named OSM recreation option within county
+Baker,1,1300,Stripling Park,park,15.5,Nearest named OSM recreation option
+Baker,2,1301,Clayton Marcus City Park,park,17.0,Nearest named OSM recreation option
+Baker,3,1266,Colquitt Town Square Historic District,park,20.2,Nearest named OSM recreation option
+Thomas,1,2849,Remington Avenue Ball Parks,recreation_ground,2.4,Named OSM recreation option within county
+Thomas,2,1200,Cherokee Lake,park,3.0,Named OSM recreation option within county
+Thomas,3,1439,McIntyre Park,park,3.4,Named OSM recreation option within county
+McIntosh,1,2367,Eulonia Park,park,4.7,Named OSM recreation option within county
+McIntosh,2,2695,Blue N Hall Park,park,5.5,Named OSM recreation option within county
+McIntosh,3,296,Richard J Reynolds State Wildlife Refuge,park,7.1,Named OSM recreation option within county
+Forsyth,1,1457,Episcopal Church Park,park,0.3,Named OSM recreation option within county
+Forsyth,2,124,Cumming City Park,park,1.1,Named OSM recreation option within county
+Forsyth,3,2371,Steam Engine Pocket Park,park,1.3,Named OSM recreation option within county
+Webster,1,1688,Jimmy Carter National Historical Park,park,7.1,Nearest named OSM recreation option
+Webster,2,218,Richland Historic District,park,7.3,Nearest named OSM recreation option
+Webster,3,1244,Plains City Park,park,9.2,Nearest named OSM recreation option
+Jones,1,194,Old Clinton Historic District,park,1.8,Named OSM recreation option within county
+Jones,2,192,Hitchiti Experimental Forest,park,7.3,Named OSM recreation option within county
+Jones,3,103,Hilchiti Experimental Forest,park,7.7,Named OSM recreation option within county
+Mitchell,1,1300,Stripling Park,park,1.1,Named OSM recreation option within county
+Mitchell,2,2306,Collingsworth Park,park,7.4,Named OSM recreation option within county
+Mitchell,3,1301,Clayton Marcus City Park,park,10.6,Named OSM recreation option within county

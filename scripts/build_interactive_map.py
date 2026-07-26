@@ -5,6 +5,7 @@ import shutil
 
 import folium
 import geopandas as gpd
+import pandas as pd
 from branca.colormap import LinearColormap
 
 
@@ -54,6 +55,17 @@ def main() -> None:
     drive_path = PROCESSED / "drive_time_accessibility.gpkg"
     if drive_path.exists():
         drive = gpd.read_file(drive_path, layer="county_drive_time")
+        popup_path = PROCESSED / "local_park_popup_text.csv"
+        if popup_path.exists():
+            drive = drive.merge(
+                pd.read_csv(popup_path),
+                on="county",
+                how="left",
+                validate="one_to_one",
+            )
+            drive["nearby_recreation_options"] = drive[
+                "nearby_recreation_options"
+            ].fillna("State park access category is High or Moderate")
         drive["geometry"] = drive.geometry.simplify(150, preserve_topology=True)
         drive = drive.to_crs("EPSG:4326")
     else:
@@ -137,6 +149,7 @@ def main() -> None:
                     "drive_time_minutes",
                     "drive_distance_miles",
                     "drive_access_category",
+                    "nearby_recreation_options",
                 ],
                 aliases=[
                     "County",
@@ -145,12 +158,45 @@ def main() -> None:
                     "Estimated drive time (minutes)",
                     "Estimated route distance (miles)",
                     "Drive-time category",
+                    "Nearby recreation options",
                 ],
                 localize=True,
                 sticky=False,
             ),
         ).add_to(drive_layer)
         drive_layer.add_to(web_map)
+
+    suggestions_path = PROCESSED / "local_park_suggestions.gpkg"
+    if suggestions_path.exists():
+        suggestions = gpd.read_file(
+            suggestions_path,
+            layer="suggested_recreation_options",
+        ).to_crs("EPSG:4326")
+        local_layer = folium.FeatureGroup(
+            name="Suggested nearby recreation options",
+            show=False,
+        )
+        for _, option in suggestions.iterrows():
+            folium.CircleMarker(
+                location=[option.geometry.y, option.geometry.x],
+                radius=4,
+                color="#6A1B9A",
+                weight=1,
+                fill=True,
+                fill_color="#CE93D8",
+                fill_opacity=0.95,
+                tooltip=option["name"],
+                popup=folium.Popup(
+                    (
+                        f"<strong>{option['name']}</strong><br>"
+                        f"OSM type: {option['fclass'].replace('_', ' ')}<br>"
+                        "<em>Informational suggestion; verify ownership, hours, "
+                        "entrance, and public access before visiting.</em>"
+                    ),
+                    max_width=320,
+                ),
+            ).add_to(local_layer)
+        local_layer.add_to(web_map)
 
     parks_layer = folium.FeatureGroup(name="State parks", show=True)
     for _, park in parks.iterrows():
@@ -195,6 +241,7 @@ def main() -> None:
       <span style="color:#D73027">■</span> Very Low: &gt;30<br>
       <div style="margin-top:6px; max-width:220px; color:#555;">
         Screening estimates from county centroids to park representative points.
+        Purple markers are unverified OpenStreetMap recreation suggestions.
       </div>
     </div>
     """

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
@@ -49,6 +50,33 @@ def main() -> None:
         markersize=18,
         zorder=3,
     )
+    label_counties = counties.nlargest(10, "drive_time_minutes").copy()
+    label_counties["label_point"] = label_counties.geometry.representative_point()
+    label_offsets = {
+        "Baker": (-12, -8),
+        "Mitchell": (14, 8),
+        "Grady": (0, 10),
+        "Long": (10, 8),
+        "Wayne": (-8, -8),
+        "McIntosh": (12, -6),
+    }
+    for _, row in label_counties.iterrows():
+        offset = label_offsets.get(row["county"], (0, 0))
+        label = ax.annotate(
+            row["county"],
+            (row["label_point"].x, row["label_point"].y),
+            xytext=offset,
+            textcoords="offset points",
+            ha="center",
+            va="center",
+            fontsize=6.5,
+            weight="bold",
+            color="#222222",
+            zorder=4,
+        )
+        label.set_path_effects(
+            [path_effects.withStroke(linewidth=2, foreground="#FFFFFF")]
+        )
     handles = [
         Patch(facecolor=DRIVE_COLORS[item], edgecolor="none", label=item)
         for item in CATEGORY_ORDER
@@ -65,7 +93,12 @@ def main() -> None:
             label="State park",
         )
     )
-    ax.legend(handles=handles, title="Estimated drive-time access", loc="lower left")
+    ax.legend(
+        handles=handles,
+        title="Estimated drive-time access",
+        loc="center left",
+        bbox_to_anchor=(1.01, 0.5),
+    )
     ax.set_title(
         "Estimated Drive Time to Georgia State Parks by County",
         fontsize=18,

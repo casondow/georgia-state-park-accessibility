@@ -10,6 +10,8 @@ This project evaluates geographic access to Georgia State Parks by measuring the
 
 Use the layer control to switch between straight-line accessibility and estimated drive-time accessibility. Hover over a county for its population, nearest park, distance or travel-time estimate, and category.
 
+For counties classified as Low or Very Low drive-time access, the county tooltip also lists up to three nearby named OpenStreetMap recreation options. Turn on **Suggested nearby recreation options** to display them as purple markers. These features are informational suggestions only; confirm ownership, public access, entrances, hours, and amenities before visiting.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.
@@ -102,6 +104,7 @@ conda activate ga-state-park-access
 python -m ipykernel install --user --name ga-state-park-access --display-name "Python (GA State Park Access)"
 python scripts/reproduce_analysis.py
 python scripts/drive_time_analysis.py
+python scripts/build_local_park_suggestions.py
 python scripts/build_interactive_map.py
 python scripts/build_drive_time_maps.py
 ```
@@ -123,6 +126,8 @@ The base Miniconda environment does not currently include GeoPandas.
 - `data/processed/drive_time_accessibility.gpkg` — county polygons with estimated OSRM travel time and route distance.
 - `data/processed/drive_time_summary.csv` — county and population totals by estimated drive-time category.
 - `data/processed/top10_drive_time_counties.csv` — longest estimated county-centroid drive times.
+- `data/processed/local_park_suggestions.csv` — up to three named OSM recreation suggestions for Low/Very Low counties.
+- `data/processed/local_park_suggestions.gpkg` — mapped suggested recreation points.
 - `maps/accessibility_map.png` — statewide accessibility map.
 - `maps/priority_areas_map.png` — Low and Very Low access counties.
 - `maps/population_by_access_category.png` — population summary chart.
@@ -149,6 +154,7 @@ The maps describe proximity from a single representative point per county to a s
 - Park amenities, capacity, admission restrictions, transit availability, and local or federal recreation sites are outside the scope.
 - Estimated drive times use OSRM/OpenStreetMap routing from county centroids to park centroids. They do not represent live traffic or verified public entrances.
 - The public OSRM demo endpoint is used for a small reproducible screening analysis and is not a production service-level dependency.
+- Nearby recreation suggestions are extracted from named OpenStreetMap `park` and `recreation_ground` features. Their ownership, accessibility, completeness, and current operating status are not independently verified.
 
 ## Future work
 

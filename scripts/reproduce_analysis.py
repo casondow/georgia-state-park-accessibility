@@ -9,6 +9,7 @@ from pathlib import Path
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.patheffects as path_effects
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
@@ -203,6 +204,33 @@ def save_outputs(
         markersize=18,
         zorder=3,
     )
+    label_counties = display_counties.nlargest(10, "park_distance_miles").copy()
+    label_counties["label_point"] = label_counties.geometry.representative_point()
+    label_offsets = {
+        "Baker": (-12, -8),
+        "Mitchell": (14, 8),
+        "Grady": (0, 10),
+        "Long": (10, 8),
+        "Wayne": (-8, -8),
+        "McIntosh": (12, -6),
+    }
+    for _, row in label_counties.iterrows():
+        offset = label_offsets.get(row["county"], (0, 0))
+        label = ax.annotate(
+            row["county"],
+            (row["label_point"].x, row["label_point"].y),
+            xytext=offset,
+            textcoords="offset points",
+            ha="center",
+            va="center",
+            fontsize=6.5,
+            weight="bold",
+            color="#222222",
+            zorder=4,
+        )
+        label.set_path_effects(
+            [path_effects.withStroke(linewidth=2, foreground="#FFFFFF")]
+        )
     legend_items = [
         Patch(facecolor=CATEGORY_COLORS[item], edgecolor="none", label=item)
         for item in CATEGORY_ORDER
@@ -222,7 +250,8 @@ def save_outputs(
     ax.legend(
         handles=legend_items,
         title="Access category",
-        loc="lower left",
+        loc="center left",
+        bbox_to_anchor=(1.01, 0.5),
         frameon=True,
     )
     ax.set_title("Georgia State Park Accessibility by County", fontsize=18, weight="bold")
