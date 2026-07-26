@@ -7,6 +7,9 @@ dependencies:
   - pandas>=2.2
   - matplotlib>=3.8
   - pyogrio>=0.9
+  - osmnx>=2.1
+  - folium>=0.20
+  - requests>=2.30
   - jupyterlab>=4
   - ipykernel
   - pillow
