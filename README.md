@@ -26,6 +26,8 @@ State-park markers and state-park routing results link to the corresponding **of
 
 Select the **▦ County explorer** control to choose any of Georgia's 159 counties. The map zooms to that county and reports its ACS population, straight-line access category, nearest state park and distance, estimated drive-time category and route distance, official park link, and curated nearby recreation suggestions where available.
 
+Location-routing results and County Explorer results include a **Share result** action. On devices supporting the Web Share API, it opens the native sharing menu; otherwise, it copies a concise result summary and the live-map URL to the clipboard.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.

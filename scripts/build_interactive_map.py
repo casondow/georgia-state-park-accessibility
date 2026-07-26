@@ -144,6 +144,12 @@ class LocationAccessibilityControl(MacroElement):
             margin-top: 8px; line-height: 1.5;
           }
           .county-search-panel .county-details hr { margin: 6px 0; }
+          .location-results .share-summary-button,
+          .county-search-panel .share-summary-button {
+            float: none; display: inline-block; margin-top: 8px; padding: 6px 9px;
+            border: 1px solid #666; border-radius: 3px; background: #f4f4f4;
+            cursor: pointer; font: inherit; font-weight: 700;
+          }
           .map-help-panel h3 { margin: 0 0 8px; font-size: 15px; }
           .map-help-panel ul { margin: 6px 0 8px; padding-left: 18px; }
           .map-help-panel li { margin: 4px 0; }
@@ -213,6 +219,7 @@ class LocationAccessibilityControl(MacroElement):
             <li><strong>⌖ Locate me:</strong> compare estimated driving access to a state park and a nearby recreation option.</li>
             <li><strong>Search:</strong> analyze any Georgia address, city, or ZIP code.</li>
             <li><strong>County explorer:</strong> review county population, access categories, travel estimates, and recreation suggestions.</li>
+            <li><strong>Share result:</strong> share or copy a concise location or county summary.</li>
             <li><strong>Blue route:</strong> selected Georgia state park.</li>
             <li><strong>Purple route:</strong> selected local recreation option.</li>
             <li><strong>Layer menu:</strong> switch accessibility methods, recreation suggestions, park points, and labels.</li>
@@ -232,10 +239,62 @@ class LocationAccessibilityControl(MacroElement):
           const countyData = {{ this.county_data_json }};
           let userMarker = null;
           let routeLayers = [];
+          const interactivePanelIds = [
+            'location-results',
+            'address-search-panel',
+            'county-search-panel',
+            'map-help-panel'
+          ];
 
           function miles(metres) { return metres / 1609.344; }
+          function showOnlyPanel(panelId) {
+            interactivePanelIds.forEach(function(id) {
+              document.getElementById(id).style.display =
+                id === panelId ? 'block' : 'none';
+            });
+          }
+          function toggleExclusivePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            const wasOpen = window.getComputedStyle(panel).display === 'block';
+            interactivePanelIds.forEach(function(id) {
+              document.getElementById(id).style.display = 'none';
+            });
+            if (!wasOpen) panel.style.display = 'block';
+            return !wasOpen;
+          }
           function formatNumber(value) {
             return Number(value).toLocaleString('en-US');
+          }
+          function installShareButton(buttonId, title, summary) {
+            const button = document.getElementById(buttonId);
+            if (!button) return;
+            button.addEventListener('click', async function() {
+              try {
+                if (navigator.share) {
+                  await navigator.share({
+                    title: title,
+                    text: summary,
+                    url: window.location.href
+                  });
+                  button.textContent = 'Shared';
+                } else {
+                  await navigator.clipboard.writeText(
+                    summary + '\\n' + window.location.href
+                  );
+                  button.textContent = 'Copied';
+                }
+                window.setTimeout(function() {
+                  button.textContent = 'Share result';
+                }, 1800);
+              } catch (error) {
+                if (error.name !== 'AbortError') {
+                  button.textContent = 'Unable to share';
+                  window.setTimeout(function() {
+                    button.textContent = 'Share result';
+                  }, 1800);
+                }
+              }
+            });
           }
           function directionsUrl(latitude, longitude, item) {
             return 'https://www.google.com/maps/dir/?api=1&origin=' +
@@ -316,7 +375,7 @@ class LocationAccessibilityControl(MacroElement):
             const panel = document.getElementById('location-results');
             const body = document.getElementById('location-results-body');
             const heading = document.getElementById('location-results-heading');
-            panel.style.display = 'block';
+            showOnlyPanel('location-results');
             heading.textContent = locationLabel || 'Access from selected location';
             body.innerHTML = 'Calculating estimated drive access…';
             routeLayers.forEach(function(layer) { map.removeLayer(layer); });
@@ -365,7 +424,21 @@ class LocationAccessibilityControl(MacroElement):
                 '<a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
                 directionsUrl(latitude, longitude, localResult.item) +
                 '">Open driving directions ↗</a></div>' +
-                '<div><strong>Route colors:</strong> blue = state park; purple = nearby recreation.</div>';
+                '<div><strong>Route colors:</strong> blue = state park; purple = nearby recreation.</div>' +
+                '<button id="location-share-summary" class="share-summary-button" type="button">Share result</button>';
+              const locationSummary =
+                (locationLabel || 'Selected location') + ': nearest state park ' +
+                stateResult.item.name + ' — ' +
+                (stateResult.duration/60).toFixed(1) + ' minutes, ' +
+                miles(stateResult.distance).toFixed(1) +
+                ' miles. Nearby recreation option: ' + localResult.item.name +
+                ' — ' + (localResult.duration/60).toFixed(1) + ' minutes, ' +
+                miles(localResult.distance).toFixed(1) + ' miles.';
+              installShareButton(
+                'location-share-summary',
+                'Georgia park accessibility result',
+                locationSummary
+              );
               const bounds = L.latLngBounds([[latitude, longitude]]);
               routes.forEach(function(layer) {
                 if (layer) bounds.extend(layer.getBounds());
@@ -390,7 +463,7 @@ class LocationAccessibilityControl(MacroElement):
               L.DomEvent.on(button, 'click', function() {
                 const panel = document.getElementById('location-results');
                 const body = document.getElementById('location-results-body');
-                panel.style.display = 'block';
+                showOnlyPanel('location-results');
                 body.innerHTML = 'Requesting your location…';
                 if (!navigator.geolocation) {
                   body.innerHTML = 'Geolocation is not supported by this browser.';
@@ -420,9 +493,7 @@ class LocationAccessibilityControl(MacroElement):
               searchButton.setAttribute('aria-label', searchButton.title);
               searchButton.innerHTML = '⌕';
               L.DomEvent.on(searchButton, 'click', function() {
-                const panel = document.getElementById('address-search-panel');
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-                if (panel.style.display === 'block') {
+                if (toggleExclusivePanel('address-search-panel')) {
                   document.getElementById('address-search-input').focus();
                 }
               });
@@ -434,9 +505,7 @@ class LocationAccessibilityControl(MacroElement):
               countyButton.setAttribute('aria-label', countyButton.title);
               countyButton.innerHTML = '▦';
               L.DomEvent.on(countyButton, 'click', function() {
-                const panel = document.getElementById('county-search-panel');
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-                if (panel.style.display === 'block') {
+                if (toggleExclusivePanel('county-search-panel')) {
                   document.getElementById('county-search-select').focus();
                 }
               });
@@ -446,8 +515,7 @@ class LocationAccessibilityControl(MacroElement):
               helpButton.setAttribute('aria-label', helpButton.title);
               helpButton.innerHTML = '?';
               L.DomEvent.on(helpButton, 'click', function() {
-                const panel = document.getElementById('map-help-panel');
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+                toggleExclusivePanel('map-help-panel');
               });
               return container;
             }
@@ -508,7 +576,24 @@ class LocationAccessibilityControl(MacroElement):
                 ' · ' + escapeHtml(county.drive_access_category) : '') +
               officialLink + '<hr>' +
               '<strong>Nearby recreation suggestions</strong><br>' +
-              escapeHtml(county.local_suggestions);
+              escapeHtml(county.local_suggestions) +
+              '<br><button id="county-share-summary" class="share-summary-button" type="button">Share result</button>';
+            const countySummary =
+              county.county + ' County park accessibility: population ' +
+              formatNumber(county.population) + '. Straight-line: ' +
+              county.nearest_park + ', ' +
+              county.park_distance_miles.toFixed(1) + ' miles (' +
+              county.access_category + '). Estimated drive access: ' +
+              (county.nearest_drive_park || 'not available') + ', ' +
+              driveDetails +
+              (county.drive_access_category ?
+                ' (' + county.drive_access_category + ')' : '') +
+              '. Nearby recreation suggestions: ' + county.local_suggestions + '.';
+            installShareButton(
+              'county-share-summary',
+              county.county + ' County park accessibility',
+              countySummary
+            );
             map.fitBounds(county.bounds, {padding: [24, 24]});
           });
           document.getElementById('address-search-form').addEventListener(
