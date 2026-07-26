@@ -16,6 +16,8 @@ The static maps label the state parks associated with the ten highest-burden cou
 
 Click the **⌖ Locate me** button beneath the zoom controls to estimate access from the visitor's current location. The map compares the fastest estimated drive to a Georgia state park with the fastest estimated drive to a nearby named OSM recreation option, displays both route distances and travel times, and draws the routes in blue and purple. Browser location permission is required. Coordinates are not stored by this site; they are sent to the public OSRM service solely to calculate the requested routes.
 
+Each result also includes an **Open driving directions** link that opens the selected destination in Google Maps. Visitors should verify the destination entrance, operating status, and route before traveling.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.

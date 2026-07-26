@@ -59,6 +59,11 @@ class LocationAccessibilityControl(MacroElement):
           .location-results .privacy-note {
             color: #555; font-size: 10px; margin-top: 7px;
           }
+          .location-results .directions-link {
+            display: inline-block; margin-top: 5px; color: #0645AD;
+            font-weight: 700; text-decoration: none;
+          }
+          .location-results .directions-link:hover { text-decoration: underline; }
           .location-results button {
             float: right; border: 0; background: transparent; cursor: pointer;
             font-size: 16px;
@@ -86,6 +91,12 @@ class LocationAccessibilityControl(MacroElement):
           let routeLayers = [];
 
           function miles(metres) { return metres / 1609.344; }
+          function directionsUrl(latitude, longitude, item) {
+            return 'https://www.google.com/maps/dir/?api=1&origin=' +
+              latitude.toFixed(6) + ',' + longitude.toFixed(6) +
+              '&destination=' + item.lat.toFixed(6) + ',' + item.lon.toFixed(6) +
+              '&travelmode=driving';
+          }
           function escapeHtml(value) {
             return String(value).replace(/[&<>"']/g, function(char) {
               return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char];
@@ -189,12 +200,18 @@ class LocationAccessibilityControl(MacroElement):
                 '<div class="route-card state-route"><strong>Nearest state park by estimated drive time</strong><br>' +
                 escapeHtml(stateResult.item.name) + '<br>' +
                 (stateResult.duration/60).toFixed(1) + ' minutes · ' +
-                miles(stateResult.distance).toFixed(1) + ' miles</div>' +
+                miles(stateResult.distance).toFixed(1) + ' miles<br>' +
+                '<a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
+                directionsUrl(latitude, longitude, stateResult.item) +
+                '">Open driving directions ↗</a></div>' +
                 '<div class="route-card local-route"><strong>Nearby recreation option by estimated drive time</strong><br>' +
                 escapeHtml(localResult.item.name) + ' (' +
                 escapeHtml(localResult.item.type.replaceAll('_',' ')) + ')<br>' +
                 (localResult.duration/60).toFixed(1) + ' minutes · ' +
-                miles(localResult.distance).toFixed(1) + ' miles</div>' +
+                miles(localResult.distance).toFixed(1) + ' miles<br>' +
+                '<a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
+                directionsUrl(latitude, longitude, localResult.item) +
+                '">Open driving directions ↗</a></div>' +
                 '<div><strong>Route colors:</strong> blue = state park; purple = nearby recreation.</div>';
               const bounds = L.latLngBounds([[latitude, longitude]]);
               routes.forEach(function(layer) {
