@@ -24,6 +24,8 @@ Select the **⌕ Search** control to analyze any Georgia address, city, or ZIP c
 
 State-park markers and state-park routing results link to the corresponding **official Georgia State Parks page** when a dedicated visitor page was matched. Those pages are the authoritative source for current alerts, hours, facilities, reservations, trail maps, and events. Three mapped legacy or planning-area names—Balls Ferry, Bush Head Shoals, and Mossy Creek—did not match dedicated pages in the current official directory, so the map directs visitors to the statewide directory and advises them to verify public access.
 
+Select the **▦ County explorer** control to choose any of Georgia's 159 counties. The map zooms to that county and reports its ACS population, straight-line access category, nearest state park and distance, estimated drive-time category and route distance, official park link, and curated nearby recreation suggestions where available.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.

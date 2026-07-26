@@ -86,13 +86,15 @@ class LocationAccessibilityControl(MacroElement):
         """
         {% macro header(this, kwargs) %}
         <style>
-          .locate-access-button, .address-search-button, .map-help-button {
+          .locate-access-button, .address-search-button, .county-search-button,
+          .map-help-button {
             width: 34px; height: 34px; border: 0; background: #fff;
             cursor: pointer; font-size: 18px; line-height: 34px; text-align: center;
           }
           .locate-access-button:hover, .address-search-button:hover,
-          .map-help-button:hover { background: #f4f4f4; }
-          .location-results, .address-search-panel, .map-help-panel {
+          .county-search-button:hover, .map-help-button:hover { background: #f4f4f4; }
+          .location-results, .address-search-panel, .county-search-panel,
+          .map-help-panel {
             position: fixed; left: 12px; bottom: 32px; z-index: 10000;
             width: 310px; max-height: 45vh; overflow-y: auto;
             background: rgba(255,255,255,.97); border: 1px solid #888;
@@ -115,7 +117,7 @@ class LocationAccessibilityControl(MacroElement):
           }
           .location-results .directions-link:hover { text-decoration: underline; }
           .location-results button, .address-search-panel > button,
-          .map-help-panel button {
+          .county-search-panel > button, .map-help-panel button {
             float: right; border: 0; background: transparent; cursor: pointer;
             font-size: 16px;
           }
@@ -133,6 +135,15 @@ class LocationAccessibilityControl(MacroElement):
           .address-search-panel .search-note {
             color: #555; font-size: 10px; margin-top: 7px;
           }
+          .county-search-panel h3 { margin: 0 0 8px; font-size: 15px; }
+          .county-search-panel select {
+            width: 100%; padding: 7px; border: 1px solid #888;
+            border-radius: 3px; font: inherit; background: #fff;
+          }
+          .county-search-panel .county-details {
+            margin-top: 8px; line-height: 1.5;
+          }
+          .county-search-panel .county-details hr { margin: 6px 0; }
           .map-help-panel h3 { margin: 0 0 8px; font-size: 15px; }
           .map-help-panel ul { margin: 6px 0 8px; padding-left: 18px; }
           .map-help-panel li { margin: 4px 0; }
@@ -141,7 +152,8 @@ class LocationAccessibilityControl(MacroElement):
               top: 8px !important; max-width: 58vw; white-space: normal !important;
               text-align: center; font-size: 14px !important; padding: 6px 9px !important;
             }
-            .location-results, .address-search-panel, .map-help-panel {
+            .location-results, .address-search-panel, .county-search-panel,
+            .map-help-panel {
               left: 8px; right: 8px; bottom: 8px; width: auto;
               max-height: 44vh; box-sizing: border-box;
             }
@@ -181,12 +193,26 @@ class LocationAccessibilityControl(MacroElement):
             restricted to Georgia and should be verified before travel.
           </div>
         </div>
+        <div id="county-search-panel" class="county-search-panel">
+          <button id="county-search-close" aria-label="Close county explorer">×</button>
+          <h3>Explore a Georgia county</h3>
+          <label for="county-search-select" style="position:absolute;left:-9999px;">
+            Select a Georgia county
+          </label>
+          <select id="county-search-select">
+            <option value="">Select a county…</option>
+          </select>
+          <div id="county-search-details" class="county-details">
+            Choose a county to view its park-access results.
+          </div>
+        </div>
         <div id="map-help-panel" class="map-help-panel">
           <button id="map-help-close" aria-label="Close help">×</button>
           <h3>How to use this map</h3>
           <ul>
             <li><strong>⌖ Locate me:</strong> compare estimated driving access to a state park and a nearby recreation option.</li>
             <li><strong>Search:</strong> analyze any Georgia address, city, or ZIP code.</li>
+            <li><strong>County explorer:</strong> review county population, access categories, travel estimates, and recreation suggestions.</li>
             <li><strong>Blue route:</strong> selected Georgia state park.</li>
             <li><strong>Purple route:</strong> selected local recreation option.</li>
             <li><strong>Layer menu:</strong> switch accessibility methods, recreation suggestions, park points, and labels.</li>
@@ -203,10 +229,14 @@ class LocationAccessibilityControl(MacroElement):
           const map = {{ this._parent.get_name() }};
           const stateParks = {{ this.state_parks_json }};
           const localOptions = {{ this.local_options_json }};
+          const countyData = {{ this.county_data_json }};
           let userMarker = null;
           let routeLayers = [];
 
           function miles(metres) { return metres / 1609.344; }
+          function formatNumber(value) {
+            return Number(value).toLocaleString('en-US');
+          }
           function directionsUrl(latitude, longitude, item) {
             return 'https://www.google.com/maps/dir/?api=1&origin=' +
               latitude.toFixed(6) + ',' + longitude.toFixed(6) +
@@ -396,6 +426,20 @@ class LocationAccessibilityControl(MacroElement):
                   document.getElementById('address-search-input').focus();
                 }
               });
+              const countyButton = L.DomUtil.create(
+                'button', 'county-search-button', container
+              );
+              countyButton.type = 'button';
+              countyButton.title = 'Explore accessibility by Georgia county';
+              countyButton.setAttribute('aria-label', countyButton.title);
+              countyButton.innerHTML = '▦';
+              L.DomEvent.on(countyButton, 'click', function() {
+                const panel = document.getElementById('county-search-panel');
+                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+                if (panel.style.display === 'block') {
+                  document.getElementById('county-search-select').focus();
+                }
+              });
               const helpButton = L.DomUtil.create('button', 'map-help-button', container);
               helpButton.type = 'button';
               helpButton.title = 'How to use this map';
@@ -424,6 +468,49 @@ class LocationAccessibilityControl(MacroElement):
               document.getElementById('address-search-panel').style.display = 'none';
             }
           );
+          document.getElementById('county-search-close').addEventListener(
+            'click', function() {
+              document.getElementById('county-search-panel').style.display = 'none';
+            }
+          );
+          const countySelect = document.getElementById('county-search-select');
+          countyData.forEach(function(county, index) {
+            const option = document.createElement('option');
+            option.value = String(index);
+            option.textContent = county.county + ' County';
+            countySelect.appendChild(option);
+          });
+          countySelect.addEventListener('change', function() {
+            const details = document.getElementById('county-search-details');
+            if (this.value === '') {
+              details.textContent = 'Choose a county to view its park-access results.';
+              return;
+            }
+            const county = countyData[Number(this.value)];
+            const driveDetails = county.drive_time_minutes === null ?
+              'Not available' :
+              county.drive_time_minutes.toFixed(1) + ' minutes · ' +
+              county.drive_distance_miles.toFixed(1) + ' miles';
+            const officialLink = county.official_url ?
+              '<br><a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
+              escapeHtml(county.official_url) + '">Official park details ↗</a>' : '';
+            details.innerHTML =
+              '<strong>' + escapeHtml(county.county) + ' County</strong><br>' +
+              'Population: ' + formatNumber(county.population) + '<hr>' +
+              '<strong>Straight-line access</strong><br>' +
+              escapeHtml(county.nearest_park) + '<br>' +
+              county.park_distance_miles.toFixed(1) + ' miles · ' +
+              escapeHtml(county.access_category) + '<hr>' +
+              '<strong>Estimated drive access</strong><br>' +
+              escapeHtml(county.nearest_drive_park || 'Not available') + '<br>' +
+              driveDetails +
+              (county.drive_access_category ?
+                ' · ' + escapeHtml(county.drive_access_category) : '') +
+              officialLink + '<hr>' +
+              '<strong>Nearby recreation suggestions</strong><br>' +
+              escapeHtml(county.local_suggestions);
+            map.fitBounds(county.bounds, {padding: [24, 24]});
+          });
           document.getElementById('address-search-form').addEventListener(
             'submit', async function(event) {
               event.preventDefault();
@@ -467,11 +554,17 @@ class LocationAccessibilityControl(MacroElement):
         """
     )
 
-    def __init__(self, state_parks: list[dict], local_options: list[dict]) -> None:
+    def __init__(
+        self,
+        state_parks: list[dict],
+        local_options: list[dict],
+        county_data: list[dict],
+    ) -> None:
         super().__init__()
         self._name = "LocationAccessibilityControl"
         self.state_parks_json = json.dumps(state_parks, ensure_ascii=False)
         self.local_options_json = json.dumps(local_options, ensure_ascii=False)
+        self.county_data_json = json.dumps(county_data, ensure_ascii=False)
 
 
 def category_style(feature: dict, field: str, colors: dict[str, str]) -> dict:
@@ -732,9 +825,71 @@ def main() -> None:
         }
         for _, row in all_local_options.iterrows()
     ]
+    suggestion_csv = PROCESSED / "local_park_suggestions.csv"
+    if suggestion_csv.exists():
+        suggestion_table = pd.read_csv(suggestion_csv).sort_values(
+            ["county", "rank"]
+        )
+        county_suggestions = (
+            suggestion_table.groupby("county")["local_option"]
+            .apply(lambda values: ", ".join(values.astype(str)))
+            .to_dict()
+        )
+    else:
+        county_suggestions = {}
+
+    county_source = drive if drive is not None else straight
+    county_records = []
+    for _, row in county_source.sort_values("county").iterrows():
+        min_x, min_y, max_x, max_y = row.geometry.bounds
+        nearest_drive_park = (
+            str(row["nearest_drive_park"])
+            if "nearest_drive_park" in row and pd.notna(row["nearest_drive_park"])
+            else None
+        )
+        official_lookup_name = nearest_drive_park or str(row["nearest_park"])
+        county_records.append(
+            {
+                "county": str(row["county"]),
+                "population": int(row["population"]),
+                "nearest_park": str(row["nearest_park"]),
+                "park_distance_miles": float(row["park_distance_miles"]),
+                "access_category": str(row["access_category"]),
+                "nearest_drive_park": nearest_drive_park,
+                "drive_time_minutes": (
+                    float(row["drive_time_minutes"])
+                    if "drive_time_minutes" in row
+                    and pd.notna(row["drive_time_minutes"])
+                    else None
+                ),
+                "drive_distance_miles": (
+                    float(row["drive_distance_miles"])
+                    if "drive_distance_miles" in row
+                    and pd.notna(row["drive_distance_miles"])
+                    else None
+                ),
+                "drive_access_category": (
+                    str(row["drive_access_category"])
+                    if "drive_access_category" in row
+                    and pd.notna(row["drive_access_category"])
+                    else None
+                ),
+                "local_suggestions": county_suggestions.get(
+                    str(row["county"]),
+                    "No curated suggestions were generated for this county.",
+                ),
+                "official_url": (
+                    OFFICIAL_PARK_PAGES[official_lookup_name][1]
+                    if official_lookup_name in OFFICIAL_PARK_PAGES
+                    else None
+                ),
+                "bounds": [[min_y, min_x], [max_y, max_x]],
+            }
+        )
     LocationAccessibilityControl(
         state_park_locations,
         local_option_locations,
+        county_records,
     ).add_to(web_map)
 
     title = """
