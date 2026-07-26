@@ -87,14 +87,15 @@ class LocationAccessibilityControl(MacroElement):
         {% macro header(this, kwargs) %}
         <style>
           .locate-access-button, .address-search-button, .county-search-button,
-          .map-help-button {
+          .methodology-button, .map-help-button {
             width: 34px; height: 34px; border: 0; background: #fff;
             cursor: pointer; font-size: 18px; line-height: 34px; text-align: center;
           }
           .locate-access-button:hover, .address-search-button:hover,
-          .county-search-button:hover, .map-help-button:hover { background: #f4f4f4; }
+          .county-search-button:hover, .methodology-button:hover,
+          .map-help-button:hover { background: #f4f4f4; }
           .location-results, .address-search-panel, .county-search-panel,
-          .map-help-panel {
+          .methodology-panel, .map-help-panel {
             position: fixed; left: 12px; bottom: 32px; z-index: 10000;
             width: 310px; max-height: 45vh; overflow-y: auto;
             background: rgba(255,255,255,.97); border: 1px solid #888;
@@ -117,7 +118,8 @@ class LocationAccessibilityControl(MacroElement):
           }
           .location-results .directions-link:hover { text-decoration: underline; }
           .location-results button, .address-search-panel > button,
-          .county-search-panel > button, .map-help-panel button {
+          .county-search-panel > button, .methodology-panel > button,
+          .map-help-panel button {
             float: right; border: 0; background: transparent; cursor: pointer;
             font-size: 16px;
           }
@@ -144,6 +146,11 @@ class LocationAccessibilityControl(MacroElement):
             margin-top: 8px; line-height: 1.5;
           }
           .county-search-panel .county-details hr { margin: 6px 0; }
+          .methodology-panel h3 { margin: 0 0 8px; font-size: 15px; }
+          .methodology-panel h4 { margin: 9px 0 3px; font-size: 12px; }
+          .methodology-panel p { margin: 4px 0; }
+          .methodology-panel ul { margin: 4px 0; padding-left: 18px; }
+          .methodology-panel a { color: #0645AD; }
           .location-results .share-summary-button,
           .county-search-panel .share-summary-button {
             float: none; display: inline-block; margin-top: 8px; padding: 6px 9px;
@@ -159,7 +166,7 @@ class LocationAccessibilityControl(MacroElement):
               text-align: center; font-size: 14px !important; padding: 6px 9px !important;
             }
             .location-results, .address-search-panel, .county-search-panel,
-            .map-help-panel {
+            .methodology-panel, .map-help-panel {
               left: 8px; right: 8px; bottom: 8px; width: auto;
               max-height: 44vh; box-sizing: border-box;
             }
@@ -212,6 +219,45 @@ class LocationAccessibilityControl(MacroElement):
             Choose a county to view its park-access results.
           </div>
         </div>
+        <div id="methodology-panel" class="methodology-panel">
+          <button id="methodology-close" aria-label="Close about and methodology">×</button>
+          <h3>About &amp; methodology</h3>
+          <p>
+            This screening project compares Georgia counties with 47 mapped
+            DNR-managed features whose source names end in <strong>SP</strong>.
+          </p>
+          <h4>County-based methods</h4>
+          <ul>
+            <li>Straight-line distance: county geometric centroid to the nearest park representative point in EPSG:26917.</li>
+            <li>Estimated drive time: OSRM/OpenStreetMap route from the county centroid to a park representative point.</li>
+            <li>Population: ACS B01003 county estimates.</li>
+          </ul>
+          <h4>Categories</h4>
+          <p><strong>Straight-line:</strong> High ≤10 miles; Moderate &gt;10–20; Low &gt;20–30; Very Low &gt;30.</p>
+          <p><strong>Drive time:</strong> High ≤30 minutes; Moderate &gt;30–45; Low &gt;45–60; Very Low &gt;60.</p>
+          <h4>Headline findings</h4>
+          <p>
+            Straight-line screening classifies 20 counties and 736,701 residents
+            as Very Low access. Drive-time screening classifies 24 counties and
+            695,196 residents as Very Low access.
+          </p>
+          <h4>Sources</h4>
+          <p>
+            <a href="https://gastateparks.org/AllParks" target="_blank" rel="noopener noreferrer">Georgia State Parks ↗</a> ·
+            <a href="https://www.census.gov/programs-surveys/acs" target="_blank" rel="noopener noreferrer">ACS ↗</a> ·
+            <a href="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html" target="_blank" rel="noopener noreferrer">TIGER/Line ↗</a> ·
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap ↗</a> ·
+            <a href="https://project-osrm.org/" target="_blank" rel="noopener noreferrer">OSRM ↗</a>
+          </p>
+          <h4>Limitations &amp; privacy</h4>
+          <p>
+            County centroids are not household locations. Routes exclude live
+            traffic and do not use verified park entrances. Local recreation
+            ownership, hours, amenities, and public access are unverified.
+            Location and search inputs are not stored by this site; requested
+            coordinates are sent to public geocoding or routing services.
+          </p>
+        </div>
         <div id="map-help-panel" class="map-help-panel">
           <button id="map-help-close" aria-label="Close help">×</button>
           <h3>How to use this map</h3>
@@ -220,6 +266,7 @@ class LocationAccessibilityControl(MacroElement):
             <li><strong>Search:</strong> analyze any Georgia address, city, or ZIP code.</li>
             <li><strong>County explorer:</strong> review county population, access categories, travel estimates, and recreation suggestions.</li>
             <li><strong>Share result:</strong> share or copy a concise location or county summary.</li>
+            <li><strong>About:</strong> review methods, thresholds, findings, sources, privacy, and limitations.</li>
             <li><strong>Blue route:</strong> selected Georgia state park.</li>
             <li><strong>Purple route:</strong> selected local recreation option.</li>
             <li><strong>Layer menu:</strong> switch accessibility methods, recreation suggestions, park points, and labels.</li>
@@ -243,6 +290,7 @@ class LocationAccessibilityControl(MacroElement):
             'location-results',
             'address-search-panel',
             'county-search-panel',
+            'methodology-panel',
             'map-help-panel'
           ];
 
@@ -517,6 +565,16 @@ class LocationAccessibilityControl(MacroElement):
                   document.getElementById('county-search-select').focus();
                 }
               });
+              const methodologyButton = L.DomUtil.create(
+                'button', 'methodology-button', container
+              );
+              methodologyButton.type = 'button';
+              methodologyButton.title = 'About this analysis and methodology';
+              methodologyButton.setAttribute('aria-label', methodologyButton.title);
+              methodologyButton.innerHTML = 'i';
+              L.DomEvent.on(methodologyButton, 'click', function() {
+                toggleExclusivePanel('methodology-panel');
+              });
               const helpButton = L.DomUtil.create('button', 'map-help-button', container);
               helpButton.type = 'button';
               helpButton.title = 'How to use this map';
@@ -547,6 +605,11 @@ class LocationAccessibilityControl(MacroElement):
           document.getElementById('county-search-close').addEventListener(
             'click', function() {
               document.getElementById('county-search-panel').style.display = 'none';
+            }
+          );
+          document.getElementById('methodology-close').addEventListener(
+            'click', function() {
+              document.getElementById('methodology-panel').style.display = 'none';
             }
           );
           const countySelect = document.getElementById('county-search-select');

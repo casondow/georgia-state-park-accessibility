@@ -30,6 +30,8 @@ Location-routing results and County Explorer results include a **Share result** 
 
 Nearby local-recreation results now include **Verify in OpenStreetMap** links. The links appear in purple-marker popups, location-routing results, and County Explorer suggestions, allowing visitors to inspect the mapped feature and surrounding roads before deciding whether it is suitable or publicly accessible.
 
+Select the **i About** control to review the project purpose, straight-line and drive-time methods, classification thresholds, headline findings, authoritative sources, privacy behavior, and major limitations directly inside the interactive map.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.
