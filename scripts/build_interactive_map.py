@@ -37,12 +37,13 @@ class LocationAccessibilityControl(MacroElement):
         """
         {% macro header(this, kwargs) %}
         <style>
-          .locate-access-button, .map-help-button {
+          .locate-access-button, .address-search-button, .map-help-button {
             width: 34px; height: 34px; border: 0; background: #fff;
             cursor: pointer; font-size: 18px; line-height: 34px; text-align: center;
           }
-          .locate-access-button:hover, .map-help-button:hover { background: #f4f4f4; }
-          .location-results, .map-help-panel {
+          .locate-access-button:hover, .address-search-button:hover,
+          .map-help-button:hover { background: #f4f4f4; }
+          .location-results, .address-search-panel, .map-help-panel {
             position: fixed; left: 12px; bottom: 32px; z-index: 10000;
             width: 310px; max-height: 45vh; overflow-y: auto;
             background: rgba(255,255,255,.97); border: 1px solid #888;
@@ -64,9 +65,24 @@ class LocationAccessibilityControl(MacroElement):
             font-weight: 700; text-decoration: none;
           }
           .location-results .directions-link:hover { text-decoration: underline; }
-          .location-results button, .map-help-panel button {
+          .location-results button, .address-search-panel > button,
+          .map-help-panel button {
             float: right; border: 0; background: transparent; cursor: pointer;
             font-size: 16px;
+          }
+          .address-search-panel h3 { margin: 0 0 8px; font-size: 15px; }
+          .address-search-panel form { display: flex; gap: 6px; }
+          .address-search-panel input {
+            min-width: 0; flex: 1; padding: 7px; border: 1px solid #888;
+            border-radius: 3px; font: inherit;
+          }
+          .address-search-panel form button {
+            border: 1px solid #666; border-radius: 3px; padding: 6px 9px;
+            background: #f4f4f4; cursor: pointer; font: inherit; font-weight: 700;
+          }
+          .address-search-panel .search-status { margin-top: 7px; }
+          .address-search-panel .search-note {
+            color: #555; font-size: 10px; margin-top: 7px;
           }
           .map-help-panel h3 { margin: 0 0 8px; font-size: 15px; }
           .map-help-panel ul { margin: 6px 0 8px; padding-left: 18px; }
@@ -76,7 +92,7 @@ class LocationAccessibilityControl(MacroElement):
               top: 8px !important; max-width: 58vw; white-space: normal !important;
               text-align: center; font-size: 14px !important; padding: 6px 9px !important;
             }
-            .location-results, .map-help-panel {
+            .location-results, .address-search-panel, .map-help-panel {
               left: 8px; right: 8px; bottom: 8px; width: auto;
               max-height: 44vh; box-sizing: border-box;
             }
@@ -91,7 +107,7 @@ class LocationAccessibilityControl(MacroElement):
         {% macro html(this, kwargs) %}
         <div id="location-results" class="location-results">
           <button id="location-results-close" aria-label="Close">×</button>
-          <h3>Access from your location</h3>
+          <h3 id="location-results-heading">Access from your location</h3>
           <div id="location-results-body">Finding your location…</div>
           <div class="privacy-note">
             Your location is not stored by this site. Coordinates are sent to the
@@ -99,11 +115,29 @@ class LocationAccessibilityControl(MacroElement):
             and should be verified before travel.
           </div>
         </div>
+        <div id="address-search-panel" class="address-search-panel">
+          <button id="address-search-close" aria-label="Close address search">×</button>
+          <h3>Search a Georgia location</h3>
+          <form id="address-search-form">
+            <label for="address-search-input" style="position:absolute;left:-9999px;">
+              Georgia address, city, or ZIP code
+            </label>
+            <input id="address-search-input" type="search"
+                   placeholder="Address, city, or ZIP code" autocomplete="street-address" required>
+            <button type="submit">Search</button>
+          </form>
+          <div id="address-search-status" class="search-status"></div>
+          <div class="search-note">
+            Search text is sent to OpenStreetMap's Nominatim service. Results are
+            restricted to Georgia and should be verified before travel.
+          </div>
+        </div>
         <div id="map-help-panel" class="map-help-panel">
           <button id="map-help-close" aria-label="Close help">×</button>
           <h3>How to use this map</h3>
           <ul>
             <li><strong>⌖ Locate me:</strong> compare estimated driving access to a state park and a nearby recreation option.</li>
+            <li><strong>Search:</strong> analyze any Georgia address, city, or ZIP code.</li>
             <li><strong>Blue route:</strong> selected Georgia state park.</li>
             <li><strong>Purple route:</strong> selected local recreation option.</li>
             <li><strong>Layer menu:</strong> switch accessibility methods, recreation suggestions, park points, and labels.</li>
@@ -199,10 +233,12 @@ class LocationAccessibilityControl(MacroElement):
             routeLayers.push(layer);
             return layer;
           }
-          async function calculate(latitude, longitude) {
+          async function calculate(latitude, longitude, locationLabel) {
             const panel = document.getElementById('location-results');
             const body = document.getElementById('location-results-body');
+            const heading = document.getElementById('location-results-heading');
             panel.style.display = 'block';
+            heading.textContent = locationLabel || 'Access from selected location';
             body.innerHTML = 'Calculating estimated drive access…';
             routeLayers.forEach(function(layer) { map.removeLayer(layer); });
             routeLayers = [];
@@ -210,7 +246,7 @@ class LocationAccessibilityControl(MacroElement):
             userMarker = L.circleMarker([latitude, longitude], {
               radius: 7, color: '#111', weight: 2, fillColor: '#FFEB3B',
               fillOpacity: 1
-            }).bindTooltip('Your location').addTo(map);
+            }).bindTooltip(locationLabel || 'Selected location').addTo(map);
 
             try {
               const stateCandidates = closestCandidates(
@@ -278,7 +314,11 @@ class LocationAccessibilityControl(MacroElement):
                 }
                 navigator.geolocation.getCurrentPosition(
                   function(position) {
-                    calculate(position.coords.latitude, position.coords.longitude);
+                    calculate(
+                      position.coords.latitude,
+                      position.coords.longitude,
+                      'Access from your location'
+                    );
                   },
                   function(error) {
                     body.innerHTML = '<strong>Location unavailable.</strong><br>' +
@@ -287,6 +327,20 @@ class LocationAccessibilityControl(MacroElement):
                   },
                   {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000}
                 );
+              });
+              const searchButton = L.DomUtil.create(
+                'button', 'address-search-button', container
+              );
+              searchButton.type = 'button';
+              searchButton.title = 'Search a Georgia address, city, or ZIP code';
+              searchButton.setAttribute('aria-label', searchButton.title);
+              searchButton.innerHTML = '⌕';
+              L.DomEvent.on(searchButton, 'click', function() {
+                const panel = document.getElementById('address-search-panel');
+                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+                if (panel.style.display === 'block') {
+                  document.getElementById('address-search-input').focus();
+                }
               });
               const helpButton = L.DomUtil.create('button', 'map-help-button', container);
               helpButton.type = 'button';
@@ -309,6 +363,49 @@ class LocationAccessibilityControl(MacroElement):
           document.getElementById('map-help-close').addEventListener(
             'click', function() {
               document.getElementById('map-help-panel').style.display = 'none';
+            }
+          );
+          document.getElementById('address-search-close').addEventListener(
+            'click', function() {
+              document.getElementById('address-search-panel').style.display = 'none';
+            }
+          );
+          document.getElementById('address-search-form').addEventListener(
+            'submit', async function(event) {
+              event.preventDefault();
+              const input = document.getElementById('address-search-input');
+              const status = document.getElementById('address-search-status');
+              const query = input.value.trim();
+              if (!query) return;
+              status.textContent = 'Searching Georgia…';
+              try {
+                const params = new URLSearchParams({
+                  format: 'jsonv2',
+                  q: query,
+                  countrycodes: 'us',
+                  viewbox: '-85.6052,35.0009,-80.7514,30.3579',
+                  bounded: '1',
+                  limit: '1'
+                });
+                const response = await fetch(
+                  'https://nominatim.openstreetmap.org/search?' + params.toString(),
+                  {headers: {'Accept': 'application/json'}}
+                );
+                if (!response.ok) throw new Error('Location search failed.');
+                const results = await response.json();
+                if (!results.length) {
+                  status.textContent = 'No Georgia match found. Try a fuller address or ZIP code.';
+                  return;
+                }
+                const result = results[0];
+                const latitude = Number(result.lat);
+                const longitude = Number(result.lon);
+                status.textContent = 'Using: ' + result.display_name;
+                document.getElementById('address-search-panel').style.display = 'none';
+                calculate(latitude, longitude, 'Access from searched location');
+              } catch (error) {
+                status.textContent = error.message + ' Please try again shortly.';
+              }
             }
           );
         })();

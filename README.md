@@ -20,6 +20,8 @@ Each result also includes an **Open driving directions** link that opens the sel
 
 Select the **? Help** control for a concise explanation of the map controls, route colors, layer menu, and routing limitations. On phone-sized screens, the results and help panels expand across the available width while the large legend is hidden to preserve map space; the same categories remain available through the layer menu and county popups.
 
+Select the **⌕ Search** control to analyze any Georgia address, city, or ZIP code without sharing the visitor's current device location. Search text is sent to OpenStreetMap's public Nominatim geocoding service; the resulting coordinates are then sent to OSRM for the requested route comparison. The site does not store the query or coordinates.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.
@@ -165,6 +167,7 @@ The maps describe proximity from a single representative point per county to a s
 - The public OSRM demo endpoint is used for a small reproducible screening analysis and is not a production service-level dependency.
 - Nearby recreation suggestions are extracted from named OpenStreetMap `park` and `recreation_ground` features. Their ownership, accessibility, completeness, and current operating status are not independently verified.
 - Locate me evaluates the 25 geographically closest state-park candidates and 25 geographically closest named recreation candidates, then compares their OSRM travel times. It is a practical screening tool, not a guarantee that every possible destination was exhaustively routed.
+- Address search uses OpenStreetMap Nominatim results restricted to Georgia. Geocoding may select an approximate place or a different matching address, so visitors should verify the displayed destination and route.
 
 ## Future work
 
