@@ -3,6 +3,7 @@
 from pathlib import Path
 import shutil
 import json
+import html
 
 import folium
 import geopandas as gpd
@@ -28,6 +29,54 @@ DRIVE_COLORS = {
     "Low": "#FDAE61",
     "Very Low": "#B2182B",
 }
+
+OFFICIAL_PARK_PAGES = {
+    "A. H. STEPHENS SP": ("A.H. Stephens State Park", "https://gastateparks.org/AHStephens"),
+    "AMICALOLA FALLS SP": ("Amicalola Falls State Park & Lodge", "https://gastateparks.org/AmicalolaFalls"),
+    "BLACK ROCK MOUNTAIN SP": ("Black Rock Mountain State Park", "https://gastateparks.org/BlackRockMountain"),
+    "CHATTAHOOCHEE BEND SP": ("Chattahoochee Bend State Park", "https://gastateparks.org/ChattahoocheeBend"),
+    "CLOUDLAND CANYON SP": ("Cloudland Canyon State Park", "https://gastateparks.org/CloudlandCanyon"),
+    "CROOKED RIVER SP": ("Crooked River State Park", "https://gastateparks.org/CrookedRiver"),
+    "DON CARTER SP": ("Don Carter State Park", "https://gastateparks.org/DonCarter"),
+    "ELIJAH CLARKE SP": ("Elijah Clark State Park", "https://gastateparks.org/ElijahClark"),
+    "F. D. ROOSEVELT SP": ("F.D. Roosevelt State Park", "https://gastateparks.org/FDRoosevelt"),
+    "FLORENCE MARINA SP": ("Florence Marina State Park", "https://gastateparks.org/FlorenceMarina"),
+    "FORT MCALLISTER SP": ("Fort McAllister State Park", "https://gastateparks.org/FortMcAllister"),
+    "FORT MOUNTAIN SP": ("Fort Mountain State Park", "https://gastateparks.org/FortMountain"),
+    "FORT YARGO SP": ("Fort Yargo State Park", "https://gastateparks.org/FortYargo"),
+    "GENERAL COFFEE SP": ("General Coffee State Park", "https://gastateparks.org/GeneralCoffee"),
+    "GEORGE BAGBY SP": ("George T. Bagby State Park", "https://gastateparks.org/GeorgeTBagby"),
+    "GEORGE L. SMITH SP": ("George L. Smith State Park", "https://gastateparks.org/GeorgeLSmith"),
+    "GEORGIA VETERANS SP": ("Georgia Veterans State Park & Resort", "https://gastateparks.org/GeorgiaVeterans"),
+    "GORDONIA-ALATAMAHA SP": ("Jack Hill State Park", "https://gastateparks.org/JackHill"),
+    "HARD LABOR CREEK SP": ("Hard Labor Creek State Park", "https://gastateparks.org/HardLaborCreek"),
+    "HIGH FALLS SP": ("High Falls State Park", "https://gastateparks.org/HighFalls"),
+    "INDIAN SPRINGS SP": ("Indian Springs State Park", "https://gastateparks.org/IndianSprings"),
+    'JAMES H."SLOPPY" FLOYD SP': ("James H. “Sloppy” Floyd State Park", "https://gastateparks.org/JamesHFloyd"),
+    "KOLOMOKI MOUNDS SP": ("Kolomoki Mounds State Park", "https://gastateparks.org/KolomokiMounds"),
+    "LAURA WALKER SP": ("Laura S. Walker State Park", "https://gastateparks.org/LauraSWalker"),
+    "LITTLE OCMULGEE SP": ("Little Ocmulgee State Park & Lodge", "https://gastateparks.org/LittleOcmulgee"),
+    "MAGNOLIA SPRINGS SP": ("Magnolia Springs State Park", "https://gastateparks.org/MagnoliaSprings"),
+    "MISTLETOE SP": ("Mistletoe State Park", "https://gastateparks.org/Mistletoe"),
+    "MOCCASIN CREEK SP": ("Moccasin Creek State Park", "https://gastateparks.org/MoccasinCreek"),
+    "PANOLA MOUNTAIN SP": ("Panola Mountain State Park", "https://gastateparks.org/PanolaMountain"),
+    "RED TOP MOUNTAIN SP": ("Red Top Mountain State Park", "https://gastateparks.org/RedTopMountain"),
+    "REED BINGHAM SP": ("Reed Bingham State Park", "https://gastateparks.org/ReedBingham"),
+    "RICHARD B. RUSSELL SP": ("Richard B. Russell State Park", "https://gastateparks.org/RichardBRussell"),
+    "SEMINOLE SP": ("Seminole State Park", "https://gastateparks.org/Seminole"),
+    "SKIDAWAY ISLAND SP": ("Skidaway Island State Park", "https://gastateparks.org/SkidawayIsland"),
+    "SMITHGALL WOODS-DUKES CREEK SP": ("Smithgall Woods State Park", "https://gastateparks.org/SmithgallWoods"),
+    "STANDING BOY CREEK SP": ("Standing Boy Creek State Park", "https://gastateparks.org/StandingBoyCreek"),
+    "STEPHEN C. FOSTER SP": ("Stephen C. Foster State Park", "https://gastateparks.org/StephenCFoster"),
+    "SWEETWATER CREEK SP": ("Sweetwater Creek State Park", "https://gastateparks.org/SweetwaterCreek"),
+    "TALLULAH GORGE SP": ("Tallulah Gorge State Park", "https://gastateparks.org/TallulahGorge"),
+    "TUGALOO SP": ("Tugaloo State Park", "https://gastateparks.org/Tugaloo"),
+    "UNICOI SP": ("Unicoi State Park & Lodge", "https://gastateparks.org/Unicoi"),
+    "VICTORIA BRYANT SP": ("Victoria Bryant State Park", "https://gastateparks.org/VictoriaBryant"),
+    "VOGEL SP": ("Vogel State Park", "https://gastateparks.org/Vogel"),
+    "WATSON MILL BRIDGE SP": ("Watson Mill Bridge State Park", "https://gastateparks.org/WatsonMillBridge"),
+}
+OFFICIAL_PARK_DIRECTORY = "https://gastateparks.org/AllParks"
 
 
 class LocationAccessibilityControl(MacroElement):
@@ -272,7 +321,12 @@ class LocationAccessibilityControl(MacroElement):
                 miles(stateResult.distance).toFixed(1) + ' miles<br>' +
                 '<a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
                 directionsUrl(latitude, longitude, stateResult.item) +
-                '">Open driving directions ↗</a></div>' +
+                '">Open driving directions ↗</a>' +
+                (stateResult.item.official_url ?
+                  '<br><a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
+                  escapeHtml(stateResult.item.official_url) +
+                  '">Official park details ↗</a>' : '') +
+                '</div>' +
                 '<div class="route-card local-route"><strong>Nearby recreation option by estimated drive time</strong><br>' +
                 escapeHtml(localResult.item.name) + ' (' +
                 escapeHtml(localResult.item.type.replaceAll('_',' ')) + ')<br>' +
@@ -596,6 +650,33 @@ def main() -> None:
 
     parks_layer = folium.FeatureGroup(name="State parks", show=True)
     for _, park in parks.iterrows():
+        park_name = str(park["park_name"])
+        official = OFFICIAL_PARK_PAGES.get(park_name)
+        if official:
+            official_name, official_url = official
+            official_details = (
+                f'<a href="{html.escape(official_url)}" target="_blank" '
+                'rel="noopener noreferrer"><strong>Official park details ↗</strong></a>'
+                "<br><span>Current alerts, hours, facilities, reservations, "
+                "trail maps, and events.</span>"
+            )
+            if park_name == "GORDONIA-ALATAMAHA SP":
+                official_details = (
+                    f"<span>Current official listing: {html.escape(official_name)}</span><br>"
+                    + official_details
+                )
+        else:
+            official_details = (
+                "<span>No dedicated visitor page was matched in the current "
+                "Georgia State Parks directory.</span><br>"
+                f'<a href="{OFFICIAL_PARK_DIRECTORY}" target="_blank" '
+                'rel="noopener noreferrer">Check the official park directory ↗</a>'
+            )
+        popup_html = (
+            f"<strong>{html.escape(park_name)}</strong><hr style='margin:5px 0'>"
+            f"{official_details}<br><small>Verify public access and the correct "
+            "entrance before traveling.</small>"
+        )
         folium.CircleMarker(
             location=[park.geometry.y, park.geometry.x],
             radius=4,
@@ -604,8 +685,8 @@ def main() -> None:
             fill=True,
             fill_color="#111111",
             fill_opacity=1,
-            tooltip=park["park_name"],
-            popup=folium.Popup(f"<strong>{park['park_name']}</strong>", max_width=250),
+            tooltip=park_name,
+            popup=folium.Popup(popup_html, max_width=300),
         ).add_to(parks_layer)
     parks_layer.add_to(web_map)
 
@@ -634,6 +715,11 @@ def main() -> None:
             "lat": row.geometry.y,
             "lon": row.geometry.x,
             "type": "state park",
+            "official_url": (
+                OFFICIAL_PARK_PAGES[row["park_name"]][1]
+                if row["park_name"] in OFFICIAL_PARK_PAGES
+                else None
+            ),
         }
         for _, row in parks.iterrows()
     ]

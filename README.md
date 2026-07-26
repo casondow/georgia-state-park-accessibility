@@ -22,6 +22,8 @@ Select the **? Help** control for a concise explanation of the map controls, rou
 
 Select the **⌕ Search** control to analyze any Georgia address, city, or ZIP code without sharing the visitor's current device location. Search text is sent to OpenStreetMap's public Nominatim geocoding service; the resulting coordinates are then sent to OSRM for the requested route comparison. The site does not store the query or coordinates.
 
+State-park markers and state-park routing results link to the corresponding **official Georgia State Parks page** when a dedicated visitor page was matched. Those pages are the authoritative source for current alerts, hours, facilities, reservations, trail maps, and events. Three mapped legacy or planning-area names—Balls Ferry, Bush Head Shoals, and Mossy Creek—did not match dedicated pages in the current official directory, so the map directs visitors to the statewide directory and advises them to verify public access.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.
@@ -168,6 +170,7 @@ The maps describe proximity from a single representative point per county to a s
 - Nearby recreation suggestions are extracted from named OpenStreetMap `park` and `recreation_ground` features. Their ownership, accessibility, completeness, and current operating status are not independently verified.
 - Locate me evaluates the 25 geographically closest state-park candidates and 25 geographically closest named recreation candidates, then compares their OSRM travel times. It is a practical screening tool, not a guarantee that every possible destination was exhaustively routed.
 - Address search uses OpenStreetMap Nominatim results restricted to Georgia. Geocoding may select an approximate place or a different matching address, so visitors should verify the displayed destination and route.
+- Official-page matching reflects the Georgia State Parks directory reviewed in July 2026. Park names, operating arrangements, URLs, alerts, and amenities can change; the linked official page should always be checked before travel.
 
 ## Future work
 
