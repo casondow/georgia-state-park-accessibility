@@ -1,0 +1,12 @@
+name: ga-state-park-access
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - geopandas>=1.0
+  - pandas>=2.2
+  - matplotlib>=3.8
+  - pyogrio>=0.9
+  - jupyterlab>=4
+  - ipykernel
+  - pillow

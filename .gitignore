@@ -1,0 +1,42 @@
+# Python and Jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.jupyter/
+
+# Local environments
+.venv/
+venv/
+env/
+
+# Raw/source GIS data are downloaded separately and may be very large.
+data/raw/
+
+# Preserved local/legacy exports superseded by the validated outputs
+README.txt
+NEGA State Park Access.qgz
+data/processed/county_state_park_access.*
+data/processed/ga_counties.*
+data/processed/georgia_county_population.csv
+data/processed/georgia_population_counties.geojson
+data/processed/georgia_state_parks.*
+data/processed/park_accessibility.gpkg
+maps/georgia_county_population.png
+
+# QGIS temporary and user files
+*.qgz~
+*.qgs~
+*.qgd
+*.qml~
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Temporary exports
+*.tmp
+*.bak
+work/
