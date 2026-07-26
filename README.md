@@ -28,6 +28,8 @@ Select the **▦ County explorer** control to choose any of Georgia's 159 counti
 
 Location-routing results and County Explorer results include a **Share result** action. On devices supporting the Web Share API, it opens the native sharing menu; otherwise, it copies a concise result summary and the live-map URL to the clipboard.
 
+Nearby local-recreation results now include **Verify in OpenStreetMap** links. The links appear in purple-marker popups, location-routing results, and County Explorer suggestions, allowing visitors to inspect the mapped feature and surrounding roads before deciding whether it is suitable or publicly accessible.
+
 ## Key findings
 
 The validated analysis covers all **159 Georgia counties** and **47 uniquely named state parks**.

@@ -302,6 +302,11 @@ class LocationAccessibilityControl(MacroElement):
               '&destination=' + item.lat.toFixed(6) + ',' + item.lon.toFixed(6) +
               '&travelmode=driving';
           }
+          function openStreetMapUrl(item) {
+            return 'https://www.openstreetmap.org/?mlat=' +
+              item.lat.toFixed(6) + '&mlon=' + item.lon.toFixed(6) +
+              '#map=16/' + item.lat.toFixed(6) + '/' + item.lon.toFixed(6);
+          }
           function escapeHtml(value) {
             return String(value).replace(/[&<>"']/g, function(char) {
               return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char];
@@ -423,7 +428,10 @@ class LocationAccessibilityControl(MacroElement):
                 miles(localResult.distance).toFixed(1) + ' miles<br>' +
                 '<a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
                 directionsUrl(latitude, longitude, localResult.item) +
-                '">Open driving directions ↗</a></div>' +
+                '">Open driving directions ↗</a><br>' +
+                '<a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
+                openStreetMapUrl(localResult.item) +
+                '">Verify in OpenStreetMap ↗</a></div>' +
                 '<div><strong>Route colors:</strong> blue = state park; purple = nearby recreation.</div>' +
                 '<button id="location-share-summary" class="share-summary-button" type="button">Share result</button>';
               const locationSummary =
@@ -562,6 +570,14 @@ class LocationAccessibilityControl(MacroElement):
             const officialLink = county.official_url ?
               '<br><a class="directions-link" target="_blank" rel="noopener noreferrer" href="' +
               escapeHtml(county.official_url) + '">Official park details ↗</a>' : '';
+            const suggestionHtml = county.local_suggestion_items.length ?
+              county.local_suggestion_items.map(function(item) {
+                return '<a class="directions-link" target="_blank" ' +
+                  'rel="noopener noreferrer" href="' +
+                  openStreetMapUrl(item) + '">' + escapeHtml(item.name) +
+                  ' ↗</a> (' + escapeHtml(item.type.replaceAll('_', ' ')) + ')';
+              }).join('<br>') :
+              escapeHtml(county.local_suggestions);
             details.innerHTML =
               '<strong>' + escapeHtml(county.county) + ' County</strong><br>' +
               'Population: ' + formatNumber(county.population) + '<hr>' +
@@ -576,7 +592,7 @@ class LocationAccessibilityControl(MacroElement):
                 ' · ' + escapeHtml(county.drive_access_category) : '') +
               officialLink + '<hr>' +
               '<strong>Nearby recreation suggestions</strong><br>' +
-              escapeHtml(county.local_suggestions) +
+              suggestionHtml +
               '<br><button id="county-share-summary" class="share-summary-button" type="button">Share result</button>';
             const countySummary =
               county.county + ' County park accessibility: population ' +
@@ -805,6 +821,11 @@ def main() -> None:
             show=False,
         )
         for _, option in suggestions.iterrows():
+            osm_url = (
+                "https://www.openstreetmap.org/?mlat="
+                f"{option.geometry.y:.6f}&mlon={option.geometry.x:.6f}"
+                f"#map=16/{option.geometry.y:.6f}/{option.geometry.x:.6f}"
+            )
             folium.CircleMarker(
                 location=[option.geometry.y, option.geometry.x],
                 radius=4,
@@ -818,6 +839,8 @@ def main() -> None:
                     (
                         f"<strong>{option['name']}</strong><br>"
                         f"OSM type: {option['fclass'].replace('_', ' ')}<br>"
+                        f'<a href="{osm_url}" target="_blank" '
+                        'rel="noopener noreferrer">Verify in OpenStreetMap ↗</a><br>'
                         "<em>Informational suggestion; verify ownership, hours, "
                         "entrance, and public access before visiting.</em>"
                     ),
@@ -920,8 +943,25 @@ def main() -> None:
             .apply(lambda values: ", ".join(values.astype(str)))
             .to_dict()
         )
+        option_coordinates = {
+            int(row["option_id"]): {
+                "name": str(row["name"]),
+                "type": str(row["fclass"]),
+                "lat": float(row.geometry.y),
+                "lon": float(row.geometry.x),
+            }
+            for _, row in all_local_options.iterrows()
+        }
+        county_suggestion_items = {}
+        for county_name, county_group in suggestion_table.groupby("county"):
+            county_suggestion_items[str(county_name)] = [
+                option_coordinates[int(option_id)]
+                for option_id in county_group["option_id"]
+                if int(option_id) in option_coordinates
+            ]
     else:
         county_suggestions = {}
+        county_suggestion_items = {}
 
     county_source = drive if drive is not None else straight
     county_records = []
@@ -962,6 +1002,10 @@ def main() -> None:
                 "local_suggestions": county_suggestions.get(
                     str(row["county"]),
                     "No curated suggestions were generated for this county.",
+                ),
+                "local_suggestion_items": county_suggestion_items.get(
+                    str(row["county"]),
+                    [],
                 ),
                 "official_url": (
                     OFFICIAL_PARK_PAGES[official_lookup_name][1]
