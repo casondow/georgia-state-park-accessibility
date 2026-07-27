@@ -1,12 +1,14 @@
 # Georgia State and Local Park Accessibility by County
 
+## [Launch the live interactive map →](https://casondow.github.io/georgia-state-park-accessibility/)
+
+**The interactive map is the primary project deliverable.** It supports current-location routing, Georgia address and ZIP search, exploration of all 159 counties, state and local recreation comparisons, official park information, directions, shareable results, and mobile use.
+
+> Select **⌖** for your current location, **⌕** to search a Georgia place, **▦** to explore a county, **i** for methodology, or **?** for map help.
+
 This project evaluates geographic access to Georgia State Parks by measuring the straight-line distance from each county's geometric centroid to the representative point of its nearest state park. County population estimates are added to show how many residents live in each access category.
 
-![Georgia State and Local Park Accessibility by County](maps/accessibility_map.png)
-
-## Interactive map
-
-[Open the interactive Georgia State and Local Park Accessibility map](https://casondow.github.io/georgia-state-park-accessibility/)
+## Interactive features
 
 Use the layer control to switch between straight-line accessibility and estimated drive-time accessibility. Hover over a county for its population, nearest park, distance or travel-time estimate, and category. Zoom in, then turn on **State park labels** to display all 47 park names without overwhelming the statewide view.
 
@@ -31,6 +33,12 @@ Location-routing results and County Explorer results include a **Share result** 
 Nearby local-recreation results now include **Verify in OpenStreetMap** links. The links appear in purple-marker popups, location-routing results, and County Explorer suggestions, allowing visitors to inspect the mapped feature and surrounding roads before deciding whether it is suitable or publicly accessible.
 
 Select the **i About** control to review the project purpose, straight-line and drive-time methods, classification thresholds, headline findings, authoritative sources, privacy behavior, and major limitations directly inside the interactive map.
+
+## Static map exports
+
+Static figures are retained as downloadable portfolio and print outputs. For exploration and trip screening, use the live map above.
+
+![Georgia State and Local Park Accessibility by County](maps/accessibility_map.png)
 
 ## Key findings
 
